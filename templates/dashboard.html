@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Student Management System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
     <link rel="stylesheet" href="/static/css/style.css">
     <link rel="stylesheet" href="/static/css/loading.css">
 </head>
@@ -25,6 +27,7 @@
                 <ul>
                     <li><a href="/dashboard" class="active">Dashboard</a></li>
                     <li><a href="/update_profile">Update Profile</a></li>
+                    <li><a href="/settings">Settings</a></li>
                     <li><a href="/reset_password">Reset Password</a></li>
                     <li><a href="/logout">Logout</a></li>
                 </ul>
@@ -32,88 +35,257 @@
         </header>
         
         <main class="dashboard-main">
+
             <div class="profile-card">
                 <div class="profile-header">
                     <div class="profile-avatar">
                         {{ student.name[0]|upper }}
                     </div>
                     <h2>{{ student.name }}</h2>
-                    <p>@{{ student.username }}</p>
+                    <p class="student-info">@{{ student.username }}</p>
                 </div>
                 
                 <div class="profile-details">
                     <div class="detail-item">
-                        <span class="detail-label">Roll Number:</span>
+                        <span class="detail-label"><i class="fas fa-id-badge"></i> Roll Number</span>
                         <span class="detail-value">{{ student.roll }}</span>
                     </div>
                     <div class="detail-item">
-                        <span class="detail-label">Department:</span>
+                        <span class="detail-label"><i class="fas fa-graduation-cap"></i> Department</span>
                         <span class="detail-value">{{ student.department }}</span>
                     </div>
                     <div class="detail-item">
-                        <span class="detail-label">Collage:</span>
+                        <span class="detail-label"><i class="fas fa-university"></i> College</span>
                         <span class="detail-value">{{ student.collage }}</span>
                     </div>
                     <div class="detail-item">
-                        <span class="detail-label">Semester:</span>
+                        <span class="detail-label"><i class="fas fa-book"></i> Semester</span>
                         <span class="detail-value">{{ student.semester }}</span>
                     </div>
                     <div class="detail-item">
-                        <span class="detail-label">Student ID:</span>
+                        <span class="detail-label"><i class="fas fa-fingerprint"></i> Student ID</span>
                         <span class="detail-value">{{ student.id }}</span>
                     </div>
                     <div class="detail-item">
-                        <span class="detail-label">Student gmail:</span>
+                        <span class="detail-label"><i class="fas fa-envelope"></i> Email</span>
                         <span class="detail-value">{{ student.gmail }}</span>
                     </div>
                 </div>
                 
                 <div class="profile-actions">
-                    <a href="/update_profile" class="btn btn-primary">Update Profile</a>
+                    <a href="/update_profile" class="btn btn-primary"><i class="fas fa-user-edit"></i> Update Profile</a>
                 </div>
             </div>
             
             <div class="dashboard-stats">
-                <div class="stat-card">
-                    <h3>Academic Progress</h3>
-                    <div class="progress-bar">
-                        <div class="progress" style="width: 75%;"></div>
+                <div class="progress-overview">
+                    <div class="stat-card" data-aos="fade-right" data-aos-delay="100">
+                        <h3><i class="fas fa-graduation-cap"></i> Academic Status</h3>
+                        <div class="academic-status">
+                            {% if student.semester|int == 8 %}
+                            <div class="completion-badge">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Program Completed</span>
+                            </div>
+                            {% else %}
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" style="width: {{ progress }}%" aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <p><i class="fas fa-chart-line"></i> {{ progress }}% completed</p>
+                            <p class="remaining-info">{{ 8 - student.semester|int }} semesters remaining</p>
+                            {% endif %}
+                        </div>
                     </div>
-                    <p>75% completed</p>
-                </div>
-                
-                <div class="stat-card">
-                    <h3>Current Semester</h3>
-                    <div class="semester-display">
-                        <span class="semester-number">{{ student.semester }}</span>
-                        <span class="semester-text">Semester</span>
+                    
+                    <div class="stat-card" data-aos="fade-up" data-aos-delay="200">
+                        <h3><i class="fas fa-clock"></i> Current Progress</h3>
+                        <div class="semester-display">
+                            <div class="semester-info">
+                                <div class="semester-number">{{ student.semester }}</div>
+                                <div class="semester-text">{% if student.semester|int == 8 %}Final Semester{% else %}Current Semester{% endif %}</div>
+                            </div>
+                            <div class="semester-timeline">
+                                {% for i in range(1, 9) %}
+                                <div class="timeline-dot {% if i <= student.semester|int %}active{% endif %}" title="Semester {{ i }}"></div>
+                                {% endfor %}
+                            </div>
+                        </div>
                     </div>
                 </div>
-                
-                <div class="stat-card">
-                    <h3>Quick Actions</h3>
-                    <ul class="quick-actions">
-                        <li><a href="/update_profile">Update Profile</a></li>
-                        <li><a href="/reset_password">Change Password</a></li>
-                        <li><a href="#">View Grades</a></li>
-                        <li><a href="#">Contact Support</a></li>
-                    </ul>
+
+                <div class="student-services-wrapper" data-aos="fade-up" data-aos-delay="300">
+                    <h3>Student Services</h3>
+                    <nav class="services-nav">
+                        <ul>
+                            <li><a href="#academic" class="active"><i class="fas fa-graduation-cap"></i> Academic</a></li>
+                            <li><a href="#resources"><i class="fas fa-book-reader"></i> Resources</a></li>
+                            <li><a href="#support"><i class="fas fa-hands-helping"></i> Support</a></li>
+                            <li><a href="#activities"><i class="fas fa-users"></i> Activities</a></li>
+                        </ul>
+                    </nav>
+                    <div class="services-content">
+                        <div id="academic" class="services-section active">
+                            <div class="services-grid">
+                                <!-- First Row - Top 3 Functions -->
+                                <div class="service-card">
+                                    <i class="fas fa-file-alt"></i>
+                                    <div class="card-content">
+                                        <h4>Semester Results</h4>
+                                        <p>View and download your academic results</p>
+                                    </div>
+                                    <a href="#results-section" class="btn btn-secondary">View</a>
+                                </div>
+                                <div class="service-card">
+                                    <i class="fas fa-calendar-check"></i>
+                                    <div class="card-content">
+                                        <h4>Attendance Records</h4>
+                                        <p>Check your attendance history</p>
+                                    </div>
+                                    <a href="/attendance" class="btn btn-secondary">Check</a>
+                                </div>
+                                <div class="service-card">
+                                    <i class="fas fa-book"></i>
+                                    <div class="card-content">
+                                        <h4>Course Materials</h4>
+                                        <p>Access study materials and resources</p>
+                                    </div>
+                                    <a href="/materials" class="btn btn-secondary">Browse</a>
+                                </div>
+                            </div>
+
+                            <div class="services-grid mt-4">
+                                <!-- Second Row - Bottom 3 Functions -->
+                                <div class="service-card">
+                                    <i class="fas fa-chart-line"></i>
+                                    <div class="card-content">
+                                        <h4>Academic Progress</h4>
+                                        <p>Track your academic journey</p>
+                                    </div>
+                                    <a href="/progress" class="btn btn-secondary">Track</a>
+                                </div>
+                                <div class="service-card">
+                                    <i class="fas fa-tasks"></i>
+                                    <div class="card-content">
+                                        <h4>Assignments</h4>
+                                        <p>View and submit assignments</p>
+                                    </div>
+                                    <a href="/assignments" class="btn btn-secondary">View</a>
+                                </div>
+                                <div class="service-card">
+                                    <i class="fas fa-question-circle"></i>
+                                    <div class="card-content">
+                                        <h4>Support</h4>
+                                        <p>Get help and support</p>
+                                    </div>
+                                    <a href="/support" class="btn btn-secondary">Help</a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="resources" class="services-section">
+                            <div class="services-grid">
+                                <div class="service-card">
+                                    <i class="fas fa-book-open"></i>
+                                    <h4>Library</h4>
+                                    <p>Access digital library</p>
+                                    <a href="/library" class="btn btn-secondary">Browse</a>
+                                </div>
+                                <div class="service-card">
+                                    <i class="fas fa-video"></i>
+                                    <h4>Video Lectures</h4>
+                                    <p>Watch recorded lectures</p>
+                                    <a href="/lectures" class="btn btn-secondary">Watch</a>
+                                </div>
+                                <div class="service-card">
+                                    <i class="fas fa-file-pdf"></i>
+                                    <h4>Study Materials</h4>
+                                    <p>Download study resources</p>
+                                    <a href="/resources" class="btn btn-secondary">Download</a>
+                                </div>
+                                <div class="service-card">
+                                    <i class="fas fa-tasks"></i>
+                                    <h4>Assignments</h4>
+                                    <p>View and submit assignments</p>
+                                    <a href="/assignments" class="btn btn-secondary">View</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="support" class="services-section">
+                            <div class="services-grid">
+                                <div class="service-card">
+                                    <i class="fas fa-headset"></i>
+                                    <h4>Help Desk</h4>
+                                    <p>Get technical support</p>
+                                    <a href="/helpdesk" class="btn btn-secondary">Contact</a>
+                                </div>
+                                <div class="service-card">
+                                    <i class="fas fa-comments"></i>
+                                    <h4>Student Chat</h4>
+                                    <p>Connect with classmates</p>
+                                    <a href="/chat" class="btn btn-secondary">Chat</a>
+                                </div>
+                                <div class="service-card">
+                                    <i class="fas fa-user-tie"></i>
+                                    <h4>Counseling</h4>
+                                    <p>Academic counseling</p>
+                                    <a href="/counseling" class="btn btn-secondary">Book</a>
+                                </div>
+                                <div class="service-card">
+                                    <i class="fas fa-question-circle"></i>
+                                    <h4>FAQs</h4>
+                                    <p>Find quick answers</p>
+                                    <a href="/faqs" class="btn btn-secondary">View</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="activities" class="services-section">
+                            <div class="services-grid">
+                                <div class="service-card">
+                                    <i class="fas fa-trophy"></i>
+                                    <h4>Events</h4>
+                                    <p>Campus events calendar</p>
+                                    <a href="/events" class="btn btn-secondary">View</a>
+                                </div>
+                                <div class="service-card">
+                                    <i class="fas fa-basketball-ball"></i>
+                                    <h4>Sports</h4>
+                                    <p>Sports activities</p>
+                                    <a href="/sports" class="btn btn-secondary">Join</a>
+                                </div>
+                                <div class="service-card">
+                                    <i class="fas fa-users"></i>
+                                    <h4>Clubs</h4>
+                                    <p>Student clubs and societies</p>
+                                    <a href="/clubs" class="btn btn-secondary">Explore</a>
+                                </div>
+                                <div class="service-card">
+                                    <i class="fas fa-bullhorn"></i>
+                                    <h4>Announcements</h4>
+                                    <p>Latest updates</p>
+                                    <a href="/announcements" class="btn btn-secondary">View</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div class="results-section">
-                <div class="dashboard-card">
-                    <h2>Academic Results</h2>
+                <div class="dashboard-card" data-aos="fade-up">
+                    <h2><i class="fas fa-graduation-cap"></i> Academic Results</h2>
                     <form id="resultsForm" class="results-form">
                         <div class="form-group">
                             <select name="exam_type" required>
-                                <option value="diploma">Diploma</option>
+                                <option value="Diploma In Engineering">Diploma In Engineering</option>
                             </select>
-                            <input type="text" name="roll" placeholder="Roll Number" required>
+                            <input type="text" name="roll" value="{{ student.roll }}" pattern="[0-9]{6,}" minlength="6" title="Roll number must be at least 6 digits" required>
                             <select name="year" required>
                                 <option value="2025">2025</option>
                                 <option value="2024">2024</option>
                                 <option value="2023">2023</option>
+                                <option value="2022">2022</option>
                             </select>
                             <button type="submit" class="btn btn-primary">Get Results</button>
                         </div>
@@ -124,11 +296,47 @@
         </main>
         
         <footer class="dashboard-footer">
-            <p>© 2023 Student Management System. All rights reserved.</p>
+            <p>© 2024 Student Management System. All rights reserved.</p>
         </footer>
     </div>
 
     <script src="/static/js/loading.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true,
+            offset: 50
+        });
+
+        // Services Navigation
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.services-nav a');
+            const sections = document.querySelectorAll('.services-section');
+
+            function switchTab(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+
+                // Update active states
+                navLinks.forEach(link => link.classList.remove('active'));
+                this.classList.add('active');
+
+                // Hide all sections and show target
+                sections.forEach(section => {
+                    section.classList.remove('active');
+                    if (section.id === targetId) {
+                        section.classList.add('active');
+                    }
+                });
+            }
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', switchTab);
+            });
+        });
+    </script>
     <script>
     document.getElementById('resultsForm').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -152,15 +360,20 @@
                 resultsDisplay.innerHTML = `
                     <div class="results-card success">
                         <h3>Results Found</h3>
-                        <p><strong>GPA:</strong> ${data.gpa}</p>
-                        <p><strong>Status:</strong> ${data.status}</p>
+                        <div class="results-info">
+                            <p><strong>Roll Number:</strong> ${data.student_info.roll}</p>
+                            <p><strong>Exam Type:</strong> ${data.student_info.exam_type}</p>
+                            <p><strong>Year:</strong> ${data.student_info.year}</p>
+                            <p><strong>GPA:</strong> ${data.gpa}</p>
+                            <p><strong>Status:</strong> ${data.status}</p>
+                        </div>
                     </div>
                 `;
             } else {
                 resultsDisplay.innerHTML = `
                     <div class="results-card error">
                         <h3>Error</h3>
-                        <p>${data.error}</p>
+                        <p>${data.error || 'Unable to fetch results. Please try again.'}</p>
                     </div>
                 `;
             }
@@ -168,7 +381,7 @@
             resultsDisplay.innerHTML = `
                 <div class="results-card error">
                     <h3>Error</h3>
-                    <p>Failed to fetch results. Please try again.</p>
+                    <p>Failed to fetch results. Please try again later.</p>
                 </div>
             `;
             console.error('Error:', error);

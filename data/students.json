@@ -1,11 +1,13 @@
 [
     {
         "id": "09c3addc",
+        "gmail": "nahid33@gmail.com",
         "username": "admin",
-        "name": "n",
-        "roll": "4",
+        "name": "Nahid",
+        "department": "CST",
+        "roll": "754311",
         "collage": "SIMT",
-        "semester": "7"
+        "semester": "5"
     },
     {
         "id": "ea40c211",

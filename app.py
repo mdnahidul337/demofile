@@ -4,6 +4,8 @@ import os
 import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
 from results import get_results
+from datetime import datetime
+import pyotp
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
@@ -19,6 +21,9 @@ def init_files():
     if not os.path.exists('data/students.json'):
         with open('data/students.json', 'w') as f:
             json.dump([], f)
+    if not os.path.exists('data/user_settings.json'):
+        with open('data/user_settings.json', 'w') as f:
+            json.dump({}, f)
 
 init_files()
 
@@ -41,6 +46,14 @@ def save_students(students):
 
 def generate_id():
     return str(uuid.uuid4().hex)[:8]
+
+def load_user_settings():
+    with open('data/user_settings.json', 'r') as f:
+        return json.load(f)
+
+def save_user_settings(settings):
+    with open('data/user_settings.json', 'w') as f:
+        json.dump(settings, f, indent=4)
 
 # Routes
 @app.route('/')
@@ -241,6 +254,115 @@ def fetch_results():
             'success': False,
             'error': str(e)
         }), 500
+
+@app.route('/settings')
+def settings():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    user_settings = load_user_settings()
+    user_id = session['user_id']
+    settings_data = user_settings.get(user_id, {
+        'two_step_enabled': False,
+        'email_notifications': True,
+        'sms_notifications': False,
+        'profile_public': False,
+        'show_results': True
+    })
+    
+    # Get student data
+    students = load_students()
+    student = next((s for s in students if s['id'] == session['user_id']), None)
+    
+    if not student:
+        return redirect(url_for('login'))
+    
+    return render_template('settings.html', settings=settings_data, student=student)
+
+@app.route('/api/settings/two-step', methods=['POST'])
+def toggle_two_step():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Not authenticated'}), 401
+    
+    try:
+        data = request.get_json()
+        enabled = data.get('enabled', False)
+        
+        user_settings = load_user_settings()
+        user_id = session['user_id']
+        
+        if user_id not in user_settings:
+            user_settings[user_id] = {}
+        
+        if enabled:
+            # Generate new TOTP secret
+            secret = pyotp.random_base32()
+            user_settings[user_id]['two_step_secret'] = secret
+            user_settings[user_id]['two_step_enabled'] = True
+            
+            # Generate QR code provisioning URI
+            totp = pyotp.TOTP(secret)
+            provisioning_uri = totp.provisioning_uri(session['username'], 
+                                                   issuer_name="Student Management System")
+            
+            save_user_settings(user_settings)
+            return jsonify({
+                'success': True,
+                'secret': secret,
+                'qr_uri': provisioning_uri
+            })
+        else:
+            user_settings[user_id]['two_step_enabled'] = False
+            user_settings[user_id].pop('two_step_secret', None)
+            save_user_settings(user_settings)
+            return jsonify({'success': True})
+            
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/settings/notifications', methods=['POST'])
+def update_notifications():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Not authenticated'}), 401
+    
+    try:
+        data = request.get_json()
+        user_settings = load_user_settings()
+        user_id = session['user_id']
+        
+        if user_id not in user_settings:
+            user_settings[user_id] = {}
+        
+        user_settings[user_id]['email_notifications'] = data.get('email', True)
+        user_settings[user_id]['sms_notifications'] = data.get('sms', False)
+        
+        save_user_settings(user_settings)
+        return jsonify({'success': True})
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/settings/privacy', methods=['POST'])
+def update_privacy():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Not authenticated'}), 401
+    
+    try:
+        data = request.get_json()
+        user_settings = load_user_settings()
+        user_id = session['user_id']
+        
+        if user_id not in user_settings:
+            user_settings[user_id] = {}
+        
+        user_settings[user_id]['profile_public'] = data.get('profile_public', False)
+        user_settings[user_id]['show_results'] = data.get('show_results', True)
+        
+        save_user_settings(user_settings)
+        return jsonify({'success': True})
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/logout')
 def logout():

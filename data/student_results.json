@@ -1,0 +1,21 @@
+{
+  "4_2025_Diploma In Engineering": {
+    "gpa": "3.62",
+    "status": "PASSED"
+  },
+  "754311_2025_Diploma In Engineering": {
+    "gpa": "3.66",
+    "status": "PASSED",
+    "subjects": {}
+  },
+  "75431_2025_Diploma In Engineering": {
+    "gpa": "3.99",
+    "status": "PASSED",
+    "subjects": {}
+  },
+  "7543111_2025_Diploma In Engineering": {
+    "gpa": "3.69",
+    "status": "PASSED",
+    "subjects": {}
+  }
+}

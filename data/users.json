@@ -2,7 +2,7 @@
     {
         "id": "09c3addc",
         "username": "admin",
-        "password": "scrypt:32768:8:1$gp2oDoo0eWEZA5k6$1ee93a1b55b61fa6c7720c6e087215b4104d090bd25baeeb403ae6d32ee4cf47d7836c321f31059ee027c0dbe51573b4226146347df38ab9fa5a0224703d7eb9"
+        "password": "pbkdf2:sha256:260000$fpVDVv2Xv5vraI2A$cf10fe1a29e5375a877bcaec5e06b56723ede49507a6ac8cefdc37d1c2bc65a3"
     },
     {
         "id": "ea40c211",
