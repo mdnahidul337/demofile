@@ -80,6 +80,10 @@ def register():
             if any(user['username'] == username for user in users):
                 return jsonify({'error': 'Username already exists'}), 400
             
+            
+
+            if any(student['roll'] == roll for student in students):
+                return jsonify({'error': 'Roll number already exists'}), 400
 
             user_id = generate_id()
             new_user = {

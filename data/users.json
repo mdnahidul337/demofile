@@ -19,5 +19,29 @@
         "gmail": "nahid33@gmail.com",
         "username": "nahid33",
         "password": "scrypt:32768:8:1$aYllVXbgXP2eHKip$700199ef7802e38251adc16aa9efadbcc8f2d599705788a25e9404e42e1bc596f5819d1149dab65748d223ec0da6a03c303acdced43b05222882ef91368d9b29"
+    },
+    {
+        "id": "f31c7b35",
+        "gmail": "nahid33@gmail.com",
+        "username": "admina",
+        "password": "pbkdf2:sha256:260000$lz9PEanPju1eKAar$fe5cf9c19005f073dad7c4e52f5ca4e92c7f7c912d3dd8611ab3c97266e3919f"
+    },
+    {
+        "id": "9b63df51",
+        "gmail": "nahid33@gmail.com",
+        "username": "rafsanrakibdskm",
+        "password": "pbkdf2:sha256:260000$DxsLAVX7LDKNZIlu$539f1612c2e1d324d84bbab65c778f0ee567fff86957e9dac5f291bd3db46f6c"
+    },
+    {
+        "id": "4f5dc369",
+        "gmail": "nahid3a3@gmail.com",
+        "username": "rafsanrakibdskma",
+        "password": "pbkdf2:sha256:260000$IxE9sNuc85bFAfDd$c663b2046ebc4e589dfd652252eb5e50ced9c46080b8301f2810e3540bf73fec"
+    },
+    {
+        "id": "e77aa42f",
+        "gmail": "nahid33@gmail.com",
+        "username": "adminaa",
+        "password": "pbkdf2:sha256:260000$WazbcwlqQFMKx1fq$751a4454d471d0d03c6b4a560ea6331f18617d312f9fbffb73de71cde8f0d29d"
     }
 ]

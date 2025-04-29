@@ -36,8 +36,12 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="password">Password</label>
+                    <label for="password" class="password-label">
+                        Password
+                        <span class="strength-text" id="strengthText"></span>
+                    </label>
                     <input type="password" id="password" name="password" required>
+                    <div class="password-strength" id="strengthIndicator"></div>
                 </div>
                 
                 <div class="form-group">
@@ -84,9 +88,77 @@
         </main>
     </div>
 
+    <div class="firework" id="welcomeMessage">
+        <div class="firework-content">
+            <h2 class="firework-text rainbow">Welcome to Our Family! 🎉</h2>
+            <p style="color: white; font-size: 1.2em;">Your journey with us begins now!</p>
+        </div>
+    </div>
+
     <script src="/static/js/loading.js"></script>
     <script src="/static/js/script.js"></script>
     <script>
+        // Password strength checker
+        document.getElementById('password').addEventListener('input', function(e) {
+            const password = e.target.value;
+            const strengthIndicator = document.getElementById('strengthIndicator');
+            const strengthText = document.getElementById('strengthText');
+            
+            // Remove all classes
+            strengthIndicator.classList.remove('strength-weak', 'strength-medium', 'strength-strong');
+            
+            if (password.length === 0) {
+                strengthIndicator.style.width = '0';
+                strengthText.textContent = '';
+                return;
+            }
+            
+            // Check password strength
+            const hasLower = /[a-z]/.test(password);
+            const hasUpper = /[A-Z]/.test(password);
+            const hasNumber = /[0-9]/.test(password);
+            const hasSpecial = /[!@#$%^&*]/.test(password);
+            const length = password.length;
+            
+            let strength = 0;
+            if (hasLower) strength++;
+            if (hasUpper) strength++;
+            if (hasNumber) strength++;
+            if (hasSpecial) strength++;
+            if (length >= 8) strength++;
+            
+            // Update indicator
+            if (strength <= 2) {
+                strengthIndicator.classList.add('strength-weak');
+                strengthText.textContent = 'Weak';
+                strengthText.style.color = '#ff4444';
+            } else if (strength <= 4) {
+                strengthIndicator.classList.add('strength-medium');
+                strengthText.textContent = 'Medium';
+                strengthText.style.color = '#ffbb33';
+            } else {
+                strengthIndicator.classList.add('strength-strong');
+                strengthText.textContent = 'Strong';
+                strengthText.style.color = '#00C851';
+            }
+        });
+
+        // Create sparkles for firework effect
+        function createSparkles() {
+            const firework = document.getElementById('welcomeMessage');
+            const colors = ['#ff0', '#f0f', '#0ff', '#0f0', '#f00', '#00f'];
+            
+            for (let i = 0; i < 50; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'sparkle';
+                sparkle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                sparkle.style.left = Math.random() * 100 + '%';
+                sparkle.style.top = Math.random() * 100 + '%';
+                sparkle.style.animationDelay = Math.random() * 1 + 's';
+                firework.appendChild(sparkle);
+            }
+        }
+
         document.getElementById('registerForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -106,9 +178,25 @@
                 const result = await response.json();
                 
                 if (response.ok) {
-                    window.location.href = result.redirect;
+                    hideLoading();
+                    const welcomeMessage = document.getElementById('welcomeMessage');
+                    welcomeMessage.style.display = 'flex';
+                    createSparkles();
+                    
+                    // Redirect after showing welcome message
+                    setTimeout(() => {
+                        window.location.href = result.redirect;
+                    }, 3000);
                 } else {
-                    alert(result.error);
+                    if (result.error.includes('Username already exists')) {
+                        alert('This username is already taken. Please choose a different username.');
+                    } else if (result.error.includes('Gmail already exists')) {
+                        alert('This Gmail address is already registered. Please use a different Gmail or login to your existing account.');
+                    } else if (result.error.includes('Roll number already exists')) {
+                        alert('This roll number is already registered. Please check your roll number and try again.');
+                    } else {
+                        alert(result.error);
+                    }
                 }
             } catch (error) {
                 alert('An error occurred during registration');
