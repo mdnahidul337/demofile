@@ -333,6 +333,152 @@
         .container {
             margin-top: 80px;
         }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            color: var(--text-color);
+            margin-bottom: 1rem;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 3rem;
+            font-size: 1.2rem;
+        }
+
+        .team-section, .roles-section {
+            padding: 4rem 0;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            padding: 0 2rem;
+        }
+
+        .team-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .team-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .team-image {
+            position: relative;
+            height: 250px;
+            overflow: hidden;
+        }
+
+        .team-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .team-social {
+            position: absolute;
+            bottom: -50px;
+            left: 0;
+            right: 0;
+            background: rgba(67, 97, 238, 0.9);
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            transition: bottom 0.3s ease;
+        }
+
+        .team-card:hover .team-social {
+            bottom: 0;
+        }
+
+        .team-social a {
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .team-card h3 {
+            text-align: center;
+            margin: 1rem 0 0.5rem;
+            color: var(--text-color);
+        }
+
+        .team-card p {
+            text-align: center;
+            color: #666;
+            padding-bottom: 1rem;
+        }
+
+        .roles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 0 2rem;
+        }
+
+        .role-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .role-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .role-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient);
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .role-card h3 {
+            text-align: center;
+            color: var(--text-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .role-features {
+            list-style: none;
+            padding: 0;
+        }
+
+        .role-features li {
+            padding: 0.5rem 0;
+            color: #666;
+            display: flex;
+            align-items: center;
+        }
+
+        .role-features li:before {
+            content: "✓";
+            color: var(--primary-color);
+            margin-right: 0.5rem;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .team-grid, .roles-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -431,7 +577,89 @@
             </div>
         </div>
 
-        <!-- ...existing main content... -->
+        <div class="team-section">
+            <h2 class="section-title">Our Care Team</h2>
+            <p class="section-subtitle">Meet the people who make it all possible</p>
+            <div class="team-grid">
+                <div class="team-card">
+                    <div class="team-image">
+                        <img src="/static/images/team/admin.jpg" alt="Administrator">
+                        <div class="team-social">
+                            <a href="#"><i class="fab fa-linkedin"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                        </div>
+                    </div>
+                    <h3>Administrator</h3>
+                    <p>System Management & Security</p>
+                </div>
+                <div class="team-card">
+                    <div class="team-image">
+                        <img src="/static/images/team/teacher.jpg" alt="Teacher">
+                        <div class="team-social">
+                            <a href="#"><i class="fab fa-linkedin"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                        </div>
+                    </div>
+                    <h3>Teachers</h3>
+                    <p>Academic Guidance & Support</p>
+                </div>
+                <div class="team-card">
+                    <div class="team-image">
+                        <img src="/static/images/team/support.jpg" alt="Support">
+                        <div class="team-social">
+                            <a href="#"><i class="fab fa-linkedin"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                        </div>
+                    </div>
+                    <h3>Support Staff</h3>
+                    <p>24/7 Technical Assistance</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="roles-section">
+            <h2 class="section-title">System Roles</h2>
+            <p class="section-subtitle">Different access levels for different needs</p>
+            <div class="roles-grid">
+                <div class="role-card">
+                    <div class="role-icon">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <h3>Admin Role</h3>
+                    <ul class="role-features">
+                        <li>User Management</li>
+                        <li>System Configuration</li>
+                        <li>Data Analytics</li>
+                        <li>Security Control</li>
+                    </ul>
+                </div>
+                <div class="role-card">
+                    <div class="role-icon">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <h3>Teacher Role</h3>
+                    <ul class="role-features">
+                        <li>Result Management</li>
+                        <li>Student Progress Tracking</li>
+                        <li>Performance Reports</li>
+                        <li>Communication Tools</li>
+                    </ul>
+                </div>
+                <div class="role-card">
+                    <div class="role-icon">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <h3>Student Role</h3>
+                    <ul class="role-features">
+                        <li>Profile Management</li>
+                        <li>Result Access</li>
+                        <li>Progress Tracking</li>
+                        <li>Document Downloads</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script src="/static/js/loading.js"></script>
