@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Student Management System</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/loading.css">
+</head>
+<body>
+    <div class="loading-container" id="loading">
+        <div class="loader"></div>
+    </div>
+    
+    <div class="container" id="content">
+        <!-- Your page content here -->
+    </div>
+
+    <div class="container" id="content">
+        <header>
+            <h1>Student Registration</h1>
+            <p>Create your account to get started</p>
+        </header>
+        
+        <main class="auth-container">
+            <form id="registerForm" class="auth-form">
+
+                <div class="form-group">
+                    <label for="gmail">Gmail</label>
+                    <input type="text" id="gmail" name="gmail" pattern=".+@gmail\.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="roll">Roll Number</label>
+                    <input type="text" id="roll" name="roll" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="department">Department</label>
+                    <input type="text" id="department" name="department" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="collage">Collage Name</label>
+                    <input type="text" id="collage" name="collage" value="Saic Institute Of Management And Technology" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="semester">Semester</label>
+                    <select id="semester" name="semester" required>
+                        <option value="">Select Semester</option>
+                        <option value="1">1st Semester</option>
+                        <option value="2">2nd Semester</option>
+                        <option value="3">3rd Semester</option>
+                        <option value="4">4th Semester</option>
+                        <option value="5">5th Semester</option>
+                        <option value="6">6th Semester</option>
+                        <option value="7">7th Semester</option>
+                        <option value="8">8th Semester</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Register</button>
+                
+                <div class="auth-footer">
+                    <p>Already have an account? <a href="/login">Login here</a></p>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <script src="/static/js/loading.js"></script>
+    <script src="/static/js/script.js"></script>
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+            
+            try {
+                showLoading();
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    window.location.href = result.redirect;
+                } else {
+                    alert(result.error);
+                }
+            } catch (error) {
+                alert('An error occurred during registration');
+            } finally {
+                hideLoading();
+            }
+        });
+    </script>
+</body>
+</html>

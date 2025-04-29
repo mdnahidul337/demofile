@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Student Management System</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/loading.css">
+</head>
+<body>
+    <div class="loading-container" id="loading">
+        <div class="loader"></div>
+    </div>
+    
+    <div class="container" id="content">
+        <!-- Your page content here -->
+    </div>
+    <div class="container" id="content">
+        <header class="dashboard-header">
+            <div class="header-content">
+                <h1>Student Dashboard</h1>
+                <p>Welcome back, <spawm class="demo rainbow">{{ student.name }}!</spawm></p>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="/dashboard" class="active">Dashboard</a></li>
+                    <li><a href="/update_profile">Update Profile</a></li>
+                    <li><a href="/reset_password">Reset Password</a></li>
+                    <li><a href="/logout">Logout</a></li>
+                </ul>
+            </nav>
+        </header>
+        
+        <main class="dashboard-main">
+            <div class="profile-card">
+                <div class="profile-header">
+                    <div class="profile-avatar">
+                        {{ student.name[0]|upper }}
+                    </div>
+                    <h2>{{ student.name }}</h2>
+                    <p>@{{ student.username }}</p>
+                </div>
+                
+                <div class="profile-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Roll Number:</span>
+                        <span class="detail-value">{{ student.roll }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Department:</span>
+                        <span class="detail-value">{{ student.department }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Collage:</span>
+                        <span class="detail-value">{{ student.collage }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Semester:</span>
+                        <span class="detail-value">{{ student.semester }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Student ID:</span>
+                        <span class="detail-value">{{ student.id }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Student gmail:</span>
+                        <span class="detail-value">{{ student.gmail }}</span>
+                    </div>
+                </div>
+                
+                <div class="profile-actions">
+                    <a href="/update_profile" class="btn btn-primary">Update Profile</a>
+                </div>
+            </div>
+            
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <h3>Academic Progress</h3>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 75%;"></div>
+                    </div>
+                    <p>75% completed</p>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>Current Semester</h3>
+                    <div class="semester-display">
+                        <span class="semester-number">{{ student.semester }}</span>
+                        <span class="semester-text">Semester</span>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>Quick Actions</h3>
+                    <ul class="quick-actions">
+                        <li><a href="/update_profile">Update Profile</a></li>
+                        <li><a href="/reset_password">Change Password</a></li>
+                        <li><a href="#">View Grades</a></li>
+                        <li><a href="#">Contact Support</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="results-section">
+                <div class="dashboard-card">
+                    <h2>Academic Results</h2>
+                    <form id="resultsForm" class="results-form">
+                        <div class="form-group">
+                            <select name="exam_type" required>
+                                <option value="diploma">Diploma</option>
+                            </select>
+                            <input type="text" name="roll" placeholder="Roll Number" required>
+                            <select name="year" required>
+                                <option value="2025">2025</option>
+                                <option value="2024">2024</option>
+                                <option value="2023">2023</option>
+                            </select>
+                            <button type="submit" class="btn btn-primary">Get Results</button>
+                        </div>
+                    </form>
+                    <div id="resultsDisplay"></div>
+                </div>
+            </div>
+        </main>
+        
+        <footer class="dashboard-footer">
+            <p>© 2023 Student Management System. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script src="/static/js/loading.js"></script>
+    <script>
+    document.getElementById('resultsForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        showLoading();
+        
+        const formData = new FormData(e.target);
+        const resultsDisplay = document.getElementById('resultsDisplay');
+        
+        try {
+            const response = await fetch('/get_results', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(Object.fromEntries(formData))
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                resultsDisplay.innerHTML = `
+                    <div class="results-card success">
+                        <h3>Results Found</h3>
+                        <p><strong>GPA:</strong> ${data.gpa}</p>
+                        <p><strong>Status:</strong> ${data.status}</p>
+                    </div>
+                `;
+            } else {
+                resultsDisplay.innerHTML = `
+                    <div class="results-card error">
+                        <h3>Error</h3>
+                        <p>${data.error}</p>
+                    </div>
+                `;
+            }
+        } catch (error) {
+            resultsDisplay.innerHTML = `
+                <div class="results-card error">
+                    <h3>Error</h3>
+                    <p>Failed to fetch results. Please try again.</p>
+                </div>
+            `;
+            console.error('Error:', error);
+        } finally {
+            hideLoading();
+        }
+    });
+    </script>
+</body>
+</html>

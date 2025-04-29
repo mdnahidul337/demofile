@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Student Management System</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/loading.css">
+</head>
+<body>
+    <div class="loading-container" id="loading">
+        <div class="loader"></div>
+    </div>
+    
+    <div class="container" id="content">
+        <!-- Your page content here -->
+    </div>
+
+    <div class="container" id="content">
+        <header>
+            <h1>Student Login</h1>
+            <p>Access your academic profile</p>
+        </header>
+        
+        <main class="auth-container">
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                
+                <div class="form-options">
+                    <div class="remember-me">
+                        <input type="checkbox" id="remember" name="remember">
+                        <label for="remember">Remember me</label>
+                    </div>
+                    <a href="/reset_password" class="forgot-password">Forgot password?</a>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Login</button>
+                
+                <div class="auth-footer">
+                    <p>Don't have an account? <a href="/register">Register here</a></p>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <script src="/static/js/loading.js"></script>
+    <script src="/static/js/script.js"></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+            
+            try {
+                showLoading();
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    window.location.href = result.redirect;
+                } else {
+                    alert(result.error);
+                }
+            } catch (error) {
+                alert('An error occurred during login');
+            } finally {
+                hideLoading();
+            }
+        });
+    </script>
+</body>
+</html>

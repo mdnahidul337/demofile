@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Profile - Student Management System</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/loading.css">
+</head>
+<body>
+    <div class="loading-container" id="loading">
+        <div class="loader"></div>
+    </div>
+
+    <div class="container" id="content">
+        <header class="dashboard-header">
+            <div class="header-content">
+                <h1>Update Profile</h1>
+                <p>Keep your information up-to-date</p>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="/dashboard">Dashboard</a></li>
+                    <li><a href="/update_profile" class="active">Update Profile</a></li>
+                    <li><a href="/reset_password">Reset Password</a></li>
+                    <li><a href="/logout">Logout</a></li>
+                </ul>
+            </nav>
+        </header>
+        
+        <main class="auth-container">
+            <form id="updateForm" class="auth-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" value="{{ student.username }}" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="name" value="{{ student.name }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="roll">Roll Number</label>
+                    <input type="text" id="roll" name="roll" value="{{ student.roll }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="collage">College Name</label>
+                    <input type="text" id="collage" name="collage" value="{{ student.collage }}" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="semester">Semester</label>
+                    <select id="semester" name="semester" required>
+                        <option value="1" {% if student.semester == '1' %}selected{% endif %}>1st Semester</option>
+                        <option value="2" {% if student.semester == '2' %}selected{% endif %}>2nd Semester</option>
+                        <option value="3" {% if student.semester == '3' %}selected{% endif %}>3rd Semester</option>
+                        <option value="4" {% if student.semester == '4' %}selected{% endif %}>4th Semester</option>
+                        <option value="5" {% if student.semester == '5' %}selected{% endif %}>5th Semester</option>
+                        <option value="6" {% if student.semester == '6' %}selected{% endif %}>6th Semester</option>
+                        <option value="7" {% if student.semester == '7' %}selected{% endif %}>7th Semester</option>
+                        <option value="8" {% if student.semester == '8' %}selected{% endif %}>8th Semester</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Update Profile</button>
+                
+                <div class="auth-footer">
+                    <a href="/dashboard" class="btn btn-secondary">Back to Dashboard</a>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <script src="/static/js/loading.js"></script>
+    <script>
+        document.getElementById('updateForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                name: document.getElementById('name').value,
+                roll: document.getElementById('roll').value,
+                collage: document.getElementById('collage').value,
+                semester: document.getElementById('semester').value
+            };
+            
+            try {
+                showLoading();
+                const response = await fetch('/update_profile', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    alert('Profile updated successfully!');
+                    window.location.href = '/dashboard';
+                } else {
+                    alert(result.error || 'Failed to update profile');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while updating profile');
+            } finally {
+                hideLoading();
+            }
+        });
+    </script>
+</body>
+</html>
