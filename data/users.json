@@ -43,5 +43,11 @@
         "gmail": "nahid33@gmail.com",
         "username": "adminaa",
         "password": "pbkdf2:sha256:260000$WazbcwlqQFMKx1fq$751a4454d471d0d03c6b4a560ea6331f18617d312f9fbffb73de71cde8f0d29d"
+    },
+    {
+        "id": "b39741fd",
+        "gmail": "sabbir76@gmail.com",
+        "username": "absiddik",
+        "password": "pbkdf2:sha256:260000$SWJIULcayQf1CXFj$73d97120048c5680c67d0d123ccb3e5889653d2c3a20997b5848d5f57cb0f19d"
     }
 ]

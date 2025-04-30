@@ -41,6 +41,9 @@
                         <span class="strength-text" id="strengthText"></span>
                     </label>
                     <input type="password" id="password" name="password" required>
+                    <span class="toggle-password" onclick="togglePassword()">
+                        👁️
+                      </span>
                     <div class="password-strength" id="strengthIndicator"></div>
                 </div>
                 
@@ -204,6 +207,18 @@
                 hideLoading();
             }
         });
+        function togglePassword() {
+  const passwordInput = document.getElementById("password");
+  const toggleIcon = document.querySelector(".toggle-password");
+
+  if (passwordInput.type === "password") {
+    passwordInput.type = "text";
+    toggleIcon.textContent = "🙈"; // change icon
+  } else {
+    passwordInput.type = "password";
+    toggleIcon.textContent = "👁️"; // revert icon
+  }
+}
     </script>
 </body>
 </html>

@@ -74,5 +74,15 @@
         "department": "CST",
         "collage": "Saic Institute Of Management And Technology",
         "semester": "7"
+    },
+    {
+        "id": "b39741fd",
+        "gmail": "sabbir76@gmail.com",
+        "username": "absiddik",
+        "name": "Abu Bakkar Siddik",
+        "roll": "754428",
+        "department": "CST",
+        "collage": "Saic Institute Of Management And Technology",
+        "semester": "5"
     }
 ]

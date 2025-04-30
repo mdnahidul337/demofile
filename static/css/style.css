@@ -1440,3 +1440,24 @@ footer {
         opacity: 1;
     }
 }
+.password-container {
+    position: relative;
+    width: 250px;
+  }
+  
+  .password-container input {
+    width: 100%;
+    padding: 10px;
+    padding-right: 40px;
+    font-size: 16px;
+  }
+  
+  .toggle-password {
+    position: absolute;
+    top: 74.5%;
+    right: 465px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    user-select: none;
+  }
+  

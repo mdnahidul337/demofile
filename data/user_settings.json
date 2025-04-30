@@ -5,5 +5,11 @@
         "sms_notifications": false,
         "profile_public": false,
         "show_results": false
+    },
+    "b39741fd": {
+        "profile_public": false,
+        "show_results": true
+    }
+}e
     }
 }
