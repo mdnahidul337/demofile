@@ -1,0 +1,2196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment History - Student Management System</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .payment-history-container {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            margin: 20px 0;
+        }
+        
+        .payment-title {
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .payment-title h2 {
+            color: #333;
+            font-size: 1.8rem;
+            margin: 0;
+        }
+        
+        .payment-summary {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .payment-summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .payment-summary-item:last-child {
+            margin-bottom: 0;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+            font-weight: bold;
+        }
+        
+        .payment-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .payment-table th, .payment-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            vertical-align: middle;
+        }
+        
+        .payment-table th {
+            background-color: #f2f2f2;
+            font-weight: 600;
+            color: #333;
+            white-space: nowrap;
+        }
+        
+        .payment-table td {
+            font-size: 0.95rem;
+        }
+        
+        .payment-table tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .status-pill {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status-paid {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-pending {
+            background-color: #ffedd5;
+            color: #9a3412;
+        }
+        
+        .status-partial {
+            background-color: #e0f2fe;
+            color: #0369a1;
+        }
+        
+        .amount-due {
+            color: #ef4444;
+            font-weight: bold;
+        }
+        
+        .amount-advance {
+            color: #10b981;
+            font-weight: bold;
+        }
+        
+        .discount {
+            color: #6366f1;
+        }
+        
+        .receipt-action {
+            color: #3b82f6;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        
+        .filter-options {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .filter-options select, .filter-options input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fff;
+        }
+        
+        .payment-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .payment-actions button {
+            padding: 8px 15px;
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .payment-actions button:hover {
+            background-color: #2563eb;
+        }
+        
+        @media (max-width: 768px) {
+            .payment-table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .filter-options {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+        
+        /* Payment Modal Styles */
+        .payment-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .payment-modal-content {
+            background-color: white;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            animation: modalFadeIn 0.3s;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        @keyframes modalFadeIn {
+            from {opacity: 0; transform: translateY(-20px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+        
+        .payment-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .payment-modal-header h3 {
+            margin: 0;
+            color: #333;
+            font-size: 1.2rem;
+        }
+        
+        .close-modal {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #777;
+            transition: color 0.2s;
+        }
+        
+        .close-modal:hover {
+            color: #333;
+        }
+        
+        .payment-modal-body {
+            padding: 20px;
+            max-height: calc(90vh - 60px); /* 60px for header */
+            overflow-y: auto;
+        }
+        
+        .payment-details {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .payment-detail-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .payment-detail-item:last-child {
+            margin-bottom: 0;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+            font-weight: 600;
+        }
+        
+        .payment-form {
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .payment-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        .payment-actions-modal {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .btn-cancel, .btn-pay {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-cancel {
+            background-color: #f3f4f6;
+            color: #555;
+        }
+        
+        .btn-pay {
+            background-color: #3b82f6;
+            color: white;
+        }
+        
+        .btn-cancel:hover {
+            background-color: #e5e7eb;
+        }
+        
+        .btn-pay:hover {
+            background-color: #2563eb;
+        }
+        
+        .dashboard-content {
+            flex: 1;
+            min-height: 100vh;
+            background: #f8faff;
+        }
+
+        .dashboard-topnav {
+            background: linear-gradient(135deg, #4070f4 0%, #2d5ced 100%);
+            padding: 1rem 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(64, 112, 244, 0.15);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .menu-toggle {
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle i {
+            color: #ffffff;
+            font-size: 1.4rem;
+        }
+
+        .menu-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+        }
+
+        .user-info span {
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
+        .user-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+        }
+
+        .user-avatar:hover {
+            transform: translateY(-2px);
+            border-color: #ffffff;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-topnav {
+                padding: 1rem;
+            }
+
+            .user-info span {
+                display: none;
+            }
+        }
+
+        /* Sidebar Styles */
+        .dashboard-sidebar {
+            background: #fff;
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            border-right: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .sidebar-header i {
+            font-size: 1.8rem;
+            color: #4070f4;
+        }
+
+        .sidebar-header h3 {
+            color: #2c3e50;
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .sidebar-menu {
+            padding: 1rem 0;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            color: #64748b;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            gap: 1rem;
+            position: relative;
+        }
+
+        .menu-item i {
+            font-size: 1.2rem;
+            min-width: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .menu-item span {
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .menu-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: #4070f4;
+            transform: scaleY(0);
+            transition: transform 0.3s;
+        }
+
+        .menu-item:hover {
+            color: #4070f4;
+            background: #f8faff;
+        }
+
+        .menu-item:hover::before {
+            transform: scaleY(1);
+        }
+
+        .menu-item:hover i {
+            transform: translateX(5px);
+        }
+
+        .menu-item.active {
+            color: #4070f4;
+            background: #f0f4ff;
+        }
+
+        .menu-item.active::before {
+            transform: scaleY(1);
+        }
+
+        .menu-item.active i {
+            transform: translateX(5px);
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-sidebar {
+                transform: translateX(-100%);
+            }
+
+            .dashboard-sidebar.active {
+                transform: translateX(0);
+            }
+
+            .dashboard-content {
+                margin-left: 0 !important;
+            }
+        }
+
+        /* Adjust main content margin */
+        .dashboard-content {
+            margin-left: 250px;
+            transition: margin 0.3s ease;
+        }
+
+        .status-failed {
+            background-color: #fee2e2;
+            color: #dc2626;
+        }
+
+        .payment-processing {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .processing-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .processing-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .method-instructions {
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        .btn-secondary {
+            background-color: #6b7280;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: background-color 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background-color: #4b5563;
+        }
+
+        /* Payment Status Transition Styles */
+        .status-transition {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .status-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .status-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .status-message {
+            font-size: 18px;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .status-submessage {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .status-pending .status-icon {
+            color: #f59e0b;
+            animation: pulse 1s infinite;
+        }
+
+        .status-success .status-icon {
+            color: #10b981;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 3px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #4070f4;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        .payment-method {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: #f0f4ff;
+            color: #4070f4;
+            font-size: 0.9rem;
+        }
+
+        .payment-method i {
+            font-size: 1rem;
+        }
+
+        /* Add these styles in the style section */
+        .payment-processing-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .processing-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .processing-steps {
+            margin-top: 20px;
+        }
+
+        .processing-step {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            padding: 10px;
+            border-radius: 8px;
+            background: #f8faff;
+            transition: all 0.3s ease;
+        }
+
+        .step-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #e0e7ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: #4070f4;
+        }
+
+        .step-content {
+            flex: 1;
+            text-align: left;
+        }
+
+        .step-title {
+            font-weight: 500;
+            color: #333;
+            margin: 0;
+        }
+
+        .step-description {
+            font-size: 0.9rem;
+            color: #666;
+            margin: 3px 0 0 0;
+        }
+
+        .processing-step.active {
+            background: #4070f4;
+        }
+
+        .processing-step.active .step-icon {
+            background: white;
+        }
+
+        .processing-step.active .step-title,
+        .processing-step.active .step-description {
+            color: white;
+        }
+
+        .processing-step.completed {
+            background: #d1fae5;
+        }
+
+        .processing-step.completed .step-icon {
+            background: #059669;
+            color: white;
+        }
+
+        .processing-step.error {
+            background: #fee2e2;
+        }
+
+        .processing-step.error .step-icon {
+            background: #dc2626;
+            color: white;
+        }
+
+        .processing-progress {
+            margin-top: 20px;
+            height: 4px;
+            background: #e5e7eb;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: #4070f4;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .processing-amount {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #4070f4;
+            margin: 15px 0;
+        }
+
+        .processing-method {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            background: #f0f4ff;
+            border-radius: 20px;
+            color: #4070f4;
+            font-size: 0.9rem;
+            margin: 10px 0;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+
+        .amount-balanced {
+            color: #3b82f6;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <div class="dashboard-sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-graduation-cap"></i>
+                <h3>Student PS</h3>
+            </div>
+            <div class="sidebar-menu">
+                <a href="/dashboard" class="menu-item">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/update_profile" class="menu-item">
+                    <i class="fas fa-user-edit"></i>
+                    <span>Update Profile</span>
+                </a>
+                <a href="/get_results" class="menu-item">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Results</span>
+                </a>
+                <a href="/payment_history" class="menu-item active">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <span>Payment History</span>
+                </a>
+                <a href="/settings" class="menu-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+                <a href="/logout" class="menu-item">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="dashboard-content">
+            <!-- Top Navigation -->
+            <div class="dashboard-topnav">
+                <div class="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </div>
+                <div class="user-info">
+                    <span>Welcome, {{ student.name }}</span>
+                    <div class="user-avatar">
+                        <img src="https://ui-avatars.com/api/?name={{ student.name }}&background=4070f4&color=fff&bold=true" alt="User Avatar">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment History Content -->
+            <div class="dashboard-main">
+                <div class="payment-history-container">
+                    <div class="payment-title">
+                        <h2><i class="fas fa-money-bill-wave"></i> Payment History</h2>
+                        <div class="payment-actions">
+                            <button onclick="openPaymentModal()"><i class="fas fa-plus"></i> Pay</button>
+                            <button onclick="window.print()"><i class="fas fa-print"></i> Print</button>
+                            <button id="downloadPdf"><i class="fas fa-file-pdf"></i> Download PDF</button>
+                        </div>
+                    </div>
+
+                    <div class="payment-summary">
+                        <div class="payment-summary-item">
+                            <span>Total Fees:</span>
+                            <span>৳{{ total_fees }}</span>
+                        </div>
+                        <div class="payment-summary-item">
+                            <span>Total Discounts:</span>
+                            <span class="discount">৳{{ total_discounts }}</span>
+                        </div>
+                        <div class="payment-summary-item">
+                            <span>Amount Paid:</span>
+                            <span class="amount-paid">৳{{ amount_paid }}</span>
+                        </div>
+                        <div class="payment-summary-item calculation-breakdown">
+                            <small class="calculation-text">Amount Paid (৳{{ amount_paid }}) + Total Discounts (৳{{ total_discounts }}) - Total Fees (৳{{ total_fees }}) = {% if outstanding_balance == 0 %}Balanced{% elif outstanding_balance > 0 %}Advance: ৳{{ outstanding_balance }}{% else %}Due: ৳{{ outstanding_balance|abs }}{% endif %}</small>
+                        </div>
+                        <div class="payment-summary-item">
+                            <span id="balanceLabel">{% if outstanding_balance == 0 %}Balance{% elif outstanding_balance < 0 %}Due Amount{% else %}Advance Amount{% endif %}:</span>
+                            <span class="{% if outstanding_balance == 0 %}amount-balanced{% elif outstanding_balance < 0 %}amount-due{% else %}amount-advance{% endif %}">৳{{ outstanding_balance|abs }}</span>
+                        </div>
+                    </div>
+
+                    <div class="filter-options">
+                        <select id="semesterFilter">
+                            <option value="">All Semesters</option>
+                            <option value="1">1st Semester</option>
+                            <option value="2">2nd Semester</option>
+                            <option value="3">3rd Semester</option>
+                            <option value="4">4th Semester</option>
+                        </select>
+                        
+                        <select id="yearFilter">
+                            <option value="">All Years</option>
+                            <option value="2023">2023</option>
+                            <option value="2022">2022</option>
+                            <option value="2021">2021</option>
+                        </select>
+                        
+                        <select id="statusFilter">
+                            <option value="">All Status</option>
+                            <option value="paid">Paid</option>
+                            <option value="pending">Pending</option>
+                            <option value="partial">failed</option>
+                        </select>
+                    </div>
+
+                    <table class="payment-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Fee Type</th>
+                                <th>Payment Amount</th>
+                                <th>Discount</th>
+                                <th>Paid</th>
+                                <th>Status</th>
+                                <th>Payment Method</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for payment in payments %}
+                            {% set transaction = transactions|selectattr('payment_id', 'equalto', payment.id)|first %}
+                            <tr data-payment-id="{{ payment.id }}">
+                                <td>{{ payment.date }}</td>
+                                <td>{{ payment.description }}</td>
+                                <td>৳{{ payment.payment_amount|default(payment.amount) }}</td>
+                                <td class="discount">{% if payment.discount %}৳{{ payment.discount }}{% else %}-{% endif %}</td>
+                                <td class="amount-paid">৳{{ payment.paid }}</td>
+                                <td>
+                                    <span class="status-pill status-{{ payment.status.lower() }}">{{ payment.status }}</span>
+                                </td>
+                                <td>
+                                    {% if transaction %}
+                                        <span class="payment-method">
+                                            {% if transaction.method == 'bkash' %}
+                                                <i class="fas fa-mobile-alt"></i> bKash
+                                            {% elif transaction.method == 'nagad' %}
+                                                <i class="fas fa-mobile-alt"></i> Nagad
+                                            {% elif transaction.method == 'bank' %}
+                                                <i class="fas fa-university"></i> Bank Transfer
+                                            {% else %}
+                                                <i class="fas fa-money-bill-wave"></i> {{ transaction.method|title }}
+                                            {% endif %}
+                                        </span>
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="#" class="receipt-action" onclick="downloadReceipt(this)" data-payment='{{ payment|tojson }}' title="Download Receipt"><i class="fas fa-receipt"></i></a>
+                                    {% if payment.status.lower() != 'paid' %}
+                                    <a href="#" class="receipt-action" title="Pay Now"><i class="fas fa-credit-card"></i></a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div class="payment-modal" id="paymentModal">
+        <div class="payment-modal-content">
+            <div class="payment-modal-header">
+                <h3><i class="fas fa-credit-card"></i> Make Payment</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="payment-modal-body">
+                <div class="payment-details">
+                    <div class="payment-detail-item">
+                        <span class="detail-label">Description:</span>
+                        <span class="detail-value" id="modalDescription"></span>
+                    </div>
+                    <div class="payment-detail-item">
+                        <span class="detail-label">Total Amount:</span>
+                        <span class="detail-value" id="modalAmount"></span>
+                    </div>
+                    <div class="payment-detail-item">
+                        <span class="detail-label">Discount:</span>
+                        <span class="detail-value discount" id="modalDiscount"></span>
+                    </div>
+                    <div class="payment-detail-item">
+                        <span class="detail-label">Already Paid:</span>
+                        <span class="detail-value amount-paid" id="modalPaid"></span>
+                    </div>
+                    <div class="payment-detail-item">
+                        <span class="detail-label">Remaining Amount:</span>
+                        <span class="detail-value amount-due" id="modalRemaining"></span>
+                    </div>
+                </div>
+                
+                <div class="payment-form">
+                    <input type="hidden" id="paymentId">
+                    <div class="form-group">
+                        <label for="feeType">Fee Type:</label>
+                        <select id="feeType" class="payment-input" onchange="handleFeeTypeChange()">
+                            <option value="">Select Fee Type</option>
+                            <option value="admission">Admission Fee (One Time)</option>
+                            <option value="library">Library Fee</option>
+                            <option value="laboratory">Laboratory Fee</option>
+                            <option value="examination">Examination Fee</option>
+                            <option value="sports">Sports Fee</option>
+                            <option value="computer">Computer Lab Fee</option>
+                            <option value="project">Project Materials Fee</option>
+                            <option value="semester">Semester Tuition Fee</option>
+                            <option value="monthly">Monthly Fee</option>
+                        </select>
+                    </div>
+
+                    <div id="semesterSelect" class="form-group" style="display: none;">
+                        <label for="semesterNumber">Select Semester:</label>
+                        <select id="semesterNumber" class="payment-input">
+                            <option value="1">1st Semester Tuition Fee</option>
+                            <option value="2">2nd Semester Tuition Fee</option>
+                            <option value="3">3rd Semester Tuition Fee</option>
+                            <option value="4">4th Semester Tuition Fee</option>
+                            <option value="5">5th Semester Tuition Fee</option>
+                            <option value="6">6th Semester Tuition Fee</option>
+                            <option value="7">7th Semester Tuition Fee</option>
+                            <option value="8">8th Semester Tuition Fee</option>
+                        </select>
+                    </div>
+
+                    <div id="monthSelect" class="form-group" style="display: none;">
+                        <label for="monthName">Enter Month:</label>
+                        <input type="text" id="monthName" class="payment-input" placeholder="e.g. January, May, etc.">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="paymentAmount">Amount to Pay (৳):</label>
+                        <input type="number" id="paymentAmount" class="payment-input" min="1" max="9999999" step="1" oninput="validateAmount(this)" value="0">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="paymentMethod">Payment Method:</label>
+                        <select id="paymentMethod" class="payment-input" onchange="handlePaymentMethodChange()">
+                            <option value="">Select Payment Method</option>
+                            <option value="bkash">Bkash</option>
+                            <option value="nagad">Nagad</option>
+                            <option value="bank">Bank Transfer</option>
+                        </select>
+                    </div>
+
+                    <div id="mobilePaymentFields" style="display: none;">
+                        <div class="form-group">
+                            <label for="mobileNumber">Mobile Number:</label>
+                            <input type="text" 
+                                   id="mobileNumber" 
+                                   class="payment-input" 
+                                   placeholder="Enter mobile number"
+                                   pattern="01[3-9][0-9]{8}"
+                                   maxlength="11"
+                                   required
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                   title="Please enter a valid 11-digit mobile number starting with 01">
+                        </div>
+                        <div class="form-group">
+                            <label for="transactionId">Transaction ID:</label>
+                            <input type="text" 
+                                   id="transactionId" 
+                                   class="payment-input" 
+                                   placeholder="Enter transaction ID"
+                                   maxlength="11"
+                                   required
+                                   pattern="[A-Za-z0-9]+"
+                                   title="Transaction ID can only contain letters and numbers">
+                        </div>
+                    </div>
+
+                    <div id="bankPaymentFields" style="display: none;">
+                        <div class="form-group">
+                            <label for="accountName">Account Holder Name:</label>
+                            <input type="text" 
+                                   id="accountName" 
+                                   class="payment-input" 
+                                   placeholder="Enter account holder name"
+                                   maxlength="50"
+                                   required
+                                   pattern="[A-Za-z\s]+"
+                                   title="Please enter a valid name (letters and spaces only)">
+                        </div>
+                        <div class="form-group">
+                            <label for="accountNumber">Account Number:</label>
+                            <input type="text" 
+                                   id="accountNumber" 
+                                   class="payment-input" 
+                                   placeholder="Enter account number"
+                                   minlength="10"
+                                   maxlength="16"
+                                   required
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                   pattern="[0-9]+"
+                                   title="Please enter a valid account number (10-16 digits)">
+                        </div>
+                    </div>
+                    
+                    <div class="payment-instructions" style="margin: 15px 0; padding: 10px; background: #f8f9fa; border-radius: 5px;">
+                        <div id="bkashInstructions" class="method-instructions">
+                            <p><strong>Bkash Payment Instructions:</strong></p>
+                            <p>Send money to: 01XXXXXXXXX</p>
+                        </div>
+                        <div id="nagadInstructions" class="method-instructions" style="display:none;">
+                            <p><strong>Nagad Payment Instructions:</strong></p>
+                            <p>Send money to: 01XXXXXXXXX</p>
+                        </div>
+                        <div id="bankInstructions" class="method-instructions" style="display:none;">
+                            <p><strong>Bank Transfer Instructions:</strong></p>
+                            <p>Bank: Example Bank</p>
+                            <p>Account: XXXX-XXXX-XXXX</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="payment-actions-modal">
+                    <button id="printReceipt" class="btn-secondary"><i class="fas fa-print"></i> Print Receipt</button>
+                    <button id="cancelPayment" class="btn-cancel">Cancel</button>
+                    <button id="processPayment" class="btn-pay">Pay Now</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add transactions data in a hidden element -->
+    <div id="transactions-data" style="display: none;">
+        {{ transactions|tojson|safe if transactions else '[]' }}
+    </div>
+
+    <script>
+        // Toggle sidebar for mobile view
+        document.querySelector('.menu-toggle').addEventListener('click', function() {
+            document.querySelector('.dashboard-sidebar').classList.toggle('active');
+        });
+        
+        // Filter functionality
+        const filterElements = document.querySelectorAll('#semesterFilter, #yearFilter, #statusFilter');
+        filterElements.forEach(filter => {
+            filter.addEventListener('change', function() {
+                applyFilters();
+            });
+        });
+        
+        function applyFilters() {
+            const semesterFilter = document.getElementById('semesterFilter').value.toLowerCase();
+            const yearFilter = document.getElementById('yearFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value.toLowerCase();
+            
+            const rows = document.querySelectorAll('.payment-table tbody tr');
+            
+            rows.forEach(row => {
+                const description = row.cells[1].textContent.toLowerCase();
+                const date = row.cells[0].textContent;
+                const status = row.querySelector('.status-pill').textContent.toLowerCase();
+                
+                const matchesSemester = !semesterFilter || description.includes(semesterFilter + " semester");
+                const matchesYear = !yearFilter || date.includes(yearFilter);
+                const matchesStatus = !statusFilter || status.includes(statusFilter);
+                
+                if (matchesSemester && matchesYear && matchesStatus) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+        
+        // Payment Modal Functionality
+        const modal = document.getElementById('paymentModal');
+        const modalCloseBtn = document.querySelector('.close-modal');
+        const cancelPaymentBtn = document.getElementById('cancelPayment');
+        const processPaymentBtn = document.getElementById('processPayment');
+        let currentPayment = null;
+        
+        // Open payment modal when Pay Now is clicked
+        document.querySelectorAll('.payment-table tbody tr').forEach(row => {
+            const payNowBtn = row.querySelector('.fa-credit-card');
+            if (payNowBtn) {
+                payNowBtn.closest('a').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const paymentId = row.dataset.paymentId;
+                    const description = row.cells[1].textContent;
+                    const amount = parseFloat(row.cells[2].textContent.replace('৳', ''));
+                    const discount = row.cells[3].textContent.includes('-') ? 0 : parseFloat(row.cells[3].textContent.replace('৳', ''));
+                    const paid = parseFloat(row.cells[4].textContent.replace('৳', ''));
+                    const remaining = amount - Math.abs(discount) - paid;
+                    
+                    currentPayment = { id: paymentId, amount, discount, paid, remaining };
+                    
+                    // Populate modal
+                    document.getElementById('paymentId').value = paymentId;
+                    document.getElementById('modalDescription').textContent = description;
+                    document.getElementById('modalAmount').textContent = '৳' + amount.toFixed(2);
+                    document.getElementById('modalDiscount').textContent = discount ? '৳' + discount.toFixed(2) : '-';
+                    document.getElementById('modalPaid').textContent = '৳' + paid.toFixed(2);
+                    document.getElementById('modalRemaining').textContent = '৳' + remaining.toFixed(2);
+                    
+                    // Set default payment amount to the remaining balance
+                    const paymentInput = document.getElementById('paymentAmount');
+                    paymentInput.value = remaining.toFixed(2);
+                    paymentInput.max = remaining;
+                    
+                    // Show modal
+                    modal.style.display = 'flex';
+                });
+            }
+        });
+        
+        // Close modal functionality
+        function closeModal() {
+            modal.style.display = 'none';
+            currentPayment = null;
+        }
+        
+        modalCloseBtn.addEventListener('click', closeModal);
+        cancelPaymentBtn.addEventListener('click', closeModal);
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target == modal) {
+                closeModal();
+            }
+        });
+        
+        // Add function to update payment summary
+        function updatePaymentSummary(newPaymentAmount) {
+            // Get current values
+            const totalFeesElement = document.querySelector('.payment-summary-item:first-child span:last-child');
+            const totalDiscountsElement = document.querySelector('.payment-summary-item .discount');
+            const amountPaidElement = document.querySelector('.payment-summary-item .amount-paid');
+            const balanceElement = document.querySelector('.payment-summary-item:last-child span:last-child');
+            const balanceLabel = document.getElementById('balanceLabel');
+            
+            // Parse current values (remove ৳ and commas)
+            const totalFees = parseCurrency(totalFeesElement.textContent);
+            const totalDiscounts = parseCurrency(totalDiscountsElement.textContent);
+            const currentAmountPaid = parseCurrency(amountPaidElement.textContent);
+            
+            // Calculate new total paid
+            const newTotalPaid = currentAmountPaid + newPaymentAmount;
+            
+            // Update Amount Paid with comma formatting
+            amountPaidElement.textContent = formatCurrency(newTotalPaid);
+            
+            // Calculate balance using new logic: Amount Paid + Total Discounts - Total Fees
+            const balance = newTotalPaid + totalDiscounts - totalFees;
+            
+            // Update balance amount and styling
+            if (balance === 0) {
+                balanceLabel.textContent = 'Balance:';
+                balanceElement.className = 'amount-balanced';
+            } else if (balance < 0) {
+                balanceLabel.textContent = 'Due Amount:';
+                balanceElement.className = 'amount-due';
+            } else {
+                balanceLabel.textContent = 'Advance Amount:';
+                balanceElement.className = 'amount-advance';
+            }
+            balanceElement.textContent = formatCurrency(Math.abs(balance));
+            
+            // Update calculation breakdown
+            const calculationText = document.querySelector('.calculation-breakdown .calculation-text');
+            if (calculationText) {
+                const result = balance === 0 ? 'Balanced' : 
+                             balance > 0 ? `Advance: ${formatCurrency(balance)}` : 
+                             `Due: ${formatCurrency(Math.abs(balance))}`;
+                calculationText.textContent = `Amount Paid (${formatCurrency(newTotalPaid)}) + Total Discounts (${formatCurrency(totalDiscounts)}) - Total Fees (${formatCurrency(totalFees)}) = ${result}`;
+            }
+        }
+
+        // Add function to verify payment update
+        function verifyPaymentUpdate(expectedTotal, element) {
+            // Get the current displayed value
+            const currentValue = parseFloat(element.textContent.replace('৳', '').replace(/,/g, '')) || 0;
+            
+            // If the values don't match, force update
+            if (Math.abs(currentValue - expectedTotal) > 0.01) {
+                element.textContent = '৳' + expectedTotal.toLocaleString();
+                return false;
+            }
+            return true;
+        }
+
+        // Add function to format currency consistently
+        function formatCurrency(amount) {
+            // Convert to number and round to 2 decimal places
+            const number = parseFloat(amount);
+            // Format with commas and no decimal places
+            return '৳' + Math.round(number).toLocaleString();
+        }
+
+        // Add function to parse currency value
+        function parseCurrency(value) {
+            // Remove currency symbol, commas and convert to number
+            return parseFloat(value.replace('৳', '').replace(/,/g, '')) || 0;
+        }
+
+        // Modify the payment processing code
+        processPaymentBtn.addEventListener('click', function() {
+            const amount = Math.round(parseFloat(document.getElementById('paymentAmount').value));
+            const discount = calculateDiscount(amount);
+            const finalAmount = amount - discount;
+            const method = document.getElementById('paymentMethod').value;
+            const description = document.getElementById('modalDescription').textContent;
+            
+            // Get current total paid amount
+            const currentAmountPaid = parseCurrency(document.querySelector('.payment-summary-item .amount-paid').textContent);
+            
+            // Validation checks
+            if (!method) {
+                alert('Please select a payment method');
+                return;
+            }
+            
+            if (!amount || amount <= 0 || amount > 9999999) {
+                alert('Please enter a valid amount (1-9,999,999)');
+                return;
+            }
+            
+            // Payment details object
+            let paymentDetails = {};
+            
+            // Additional validation based on payment method
+            if (method === 'bkash' || method === 'nagad') {
+                const mobileNumber = document.getElementById('mobileNumber').value;
+                const transactionId = document.getElementById('transactionId').value;
+                
+                if (!mobileNumber || !transactionId) {
+                    alert('Please enter both mobile number and transaction ID');
+                return;
+            }
+            
+                if (!/^01[3-9][0-9]{8}$/.test(mobileNumber)) {
+                    alert('Please enter a valid 11-digit mobile number starting with 01');
+                return;
+            }
+            
+                if (!/^[A-Za-z0-9]{6,11}$/.test(transactionId)) {
+                    alert('Please enter a valid transaction ID (6-11 characters, letters and numbers only)');
+                return;
+            }
+            
+                paymentDetails = {
+                    mobile_number: mobileNumber,
+                    transaction_id: transactionId,
+                    account_name: '',
+                    account_number: ''
+                };
+            } else if (method === 'bank') {
+                const accountName = document.getElementById('accountName').value;
+                const accountNumber = document.getElementById('accountNumber').value;
+                
+                if (!accountName || !accountNumber) {
+                    alert('Please enter both account name and account number');
+                    return;
+                }
+                
+                if (!/^[A-Za-z\s]{2,50}$/.test(accountName)) {
+                    alert('Please enter a valid account holder name (2-50 characters, letters and spaces only)');
+                    return;
+                }
+                
+                if (!/^[0-9]{10,16}$/.test(accountNumber)) {
+                    alert('Please enter a valid account number (10-16 digits)');
+                    return;
+                }
+
+                paymentDetails = {
+                    mobile_number: '',
+                    transaction_id: '',
+                    account_name: accountName,
+                    account_number: accountNumber
+                };
+            }
+            
+            // Close the payment modal
+            closeModal();
+            
+            // Show the new processing UI
+            showPaymentProcessing(amount, method, discount);
+            
+            // Prepare payment data
+            const paymentData = {
+                amount: amount,
+                method: method,
+                payment_details: paymentDetails,
+                description: description,
+                current_total: currentAmountPaid // Send current total to server
+            };
+            
+            // Send payment data to server
+                fetch('/make_payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                body: JSON.stringify(paymentData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                    // Get all summary elements
+                    const totalFeesElement = document.querySelector('.payment-summary-item:first-child span:last-child');
+                    const totalDiscountsElement = document.querySelector('.payment-summary-item .discount');
+                    const amountPaidElement = document.querySelector('.payment-summary-item .amount-paid');
+                    const dueAmountElement = document.querySelector('.payment-summary-item .amount-due');
+                    const calculationText = document.querySelector('.calculation-breakdown .calculation-text');
+
+                    // Calculate new totals
+                    const newTotalPaid = currentAmountPaid + finalAmount;
+                    const totalFees = parseCurrency(totalFeesElement.textContent);
+                    const totalDiscounts = parseCurrency(totalDiscountsElement.textContent);
+
+                    // Update summary values with consistent formatting
+                    totalFeesElement.textContent = formatCurrency(totalFees);
+                    totalDiscountsElement.textContent = formatCurrency(totalDiscounts);
+                    amountPaidElement.textContent = formatCurrency(newTotalPaid);
+
+                    // Calculate and update due amount
+                    const dueAmount = Math.max(0, totalFees - totalDiscounts - newTotalPaid);
+                    dueAmountElement.textContent = formatCurrency(dueAmount);
+
+                    // Update calculation breakdown text with consistent formatting
+                    if (calculationText) {
+                        calculationText.textContent = `Total Fees (${formatCurrency(totalFees)}) - Total Discounts (${formatCurrency(totalDiscounts)}) - Amount Paid (${formatCurrency(newTotalPaid)})`;
+                    }
+
+                    // Add new payment row to table at the beginning
+                    const tbody = document.querySelector('.payment-table tbody');
+                    const newRow = document.createElement('tr');
+                    const today = new Date().toLocaleDateString();
+                    
+                    newRow.dataset.paymentId = data.payment.id;
+                    newRow.innerHTML = `
+                        <td>${today}</td>
+                        <td>${description}</td>
+                        <td>${formatCurrency(amount)}</td>
+                        <td class="discount">${formatCurrency(discount)}</td>
+                        <td class="amount-paid">${formatCurrency(finalAmount)}</td>
+                        <td><span class="status-pill status-paid">Paid</span></td>
+                        <td>
+                            <span class="payment-method">
+                                ${getPaymentMethodIcon(method)} ${method.charAt(0).toUpperCase() + method.slice(1)}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="#" class="receipt-action" onclick="downloadReceipt(this)" 
+                               data-payment='${JSON.stringify(data.payment)}' title="Download Receipt">
+                                <i class="fas fa-receipt"></i>
+                            </a>
+                        </td>
+                    `;
+                    
+                    // Insert the new row at the beginning of the table
+                    if (tbody.firstChild) {
+                        tbody.insertBefore(newRow, tbody.firstChild);
+                    } else {
+                        tbody.appendChild(newRow);
+                    }
+
+                    // Update transactions data
+                    window.transactionsData = window.transactionsData || [];
+                    window.transactionsData.push(data.transaction);
+
+                    // Show success message after processing animation
+                    setTimeout(() => {
+                        const overlay = document.querySelector('.payment-processing-overlay');
+                        if (overlay) {
+                            overlay.remove();
+                        }
+                        showSuccessMessage(finalAmount);
+                    }, 4500);
+                } else {
+                    alert('Payment failed: ' + (data.error || 'Unknown error'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                alert('Payment failed. Please try again.');
+            });
+        });
+
+        // Update other currency displays to use the new format
+        document.addEventListener('DOMContentLoaded', function() {
+            // Format all currency displays on page load
+            document.querySelectorAll('.amount-paid, .discount, .payment-summary-item span:last-child').forEach(element => {
+                const value = parseCurrency(element.textContent);
+                if (!isNaN(value)) {
+                    element.textContent = formatCurrency(value);
+                }
+            });
+        });
+
+        // Helper function to get payment method icon
+        function getPaymentMethodIcon(method) {
+            switch(method) {
+                case 'bkash':
+                case 'nagad':
+                    return '<i class="fas fa-mobile-alt"></i>';
+                case 'bank':
+                    return '<i class="fas fa-university"></i>';
+                default:
+                    return '<i class="fas fa-money-bill-wave"></i>';
+            }
+        }
+
+        // Handle fee type change
+        function handleFeeTypeChange() {
+            const feeType = document.getElementById('feeType').value;
+            const semesterSelect = document.getElementById('semesterSelect');
+            const monthSelect = document.getElementById('monthSelect');
+            const modalDescription = document.getElementById('modalDescription');
+            
+            // Hide both by default
+            semesterSelect.style.display = 'none';
+            monthSelect.style.display = 'none';
+            
+            if (feeType === 'semester') {
+                semesterSelect.style.display = 'block';
+                updateDescription();
+            } else if (feeType === 'monthly') {
+                monthSelect.style.display = 'block';
+                updateDescription();
+            } else if (feeType) {
+                const descriptions = {
+                    'admission': 'Admission Fee',
+                    'library': 'Library Fee',
+                    'laboratory': 'Laboratory Fee',
+                    'examination': 'Examination Fee',
+                    'sports': 'Sports Fee',
+                    'computer': 'Computer Lab Fee',
+                    'project': 'Project Materials Fee'
+                };
+                modalDescription.textContent = descriptions[feeType] || '';
+            }
+        }
+
+        // Update description when semester or month changes
+        document.getElementById('semesterNumber').addEventListener('change', updateDescription);
+        document.getElementById('monthName').addEventListener('input', updateDescription);
+
+        function updateDescription() {
+            const feeType = document.getElementById('feeType').value;
+            const modalDescription = document.getElementById('modalDescription');
+            
+            if (feeType === 'semester') {
+                const semesterNumber = document.getElementById('semesterNumber').value;
+                let suffix = 'th';
+                if (semesterNumber === '1') suffix = 'st';
+                else if (semesterNumber === '2') suffix = 'nd';
+                else if (semesterNumber === '3') suffix = 'rd';
+                modalDescription.textContent = `${semesterNumber}${suffix} Semester Tuition Fee`;
+            } else if (feeType === 'monthly') {
+                const monthName = document.getElementById('monthName').value;
+                if (monthName) {
+                    modalDescription.textContent = `Monthly Fee - ${monthName}`;
+                }
+            }
+        }
+
+        // Handle payment method change
+        function handlePaymentMethodChange() {
+            const method = document.getElementById('paymentMethod').value;
+            const mobileFields = document.getElementById('mobilePaymentFields');
+            const bankFields = document.getElementById('bankPaymentFields');
+            
+            mobileFields.style.display = 'none';
+            bankFields.style.display = 'none';
+            
+            if (method === 'bkash' || method === 'nagad') {
+                mobileFields.style.display = 'block';
+            } else if (method === 'bank') {
+                bankFields.style.display = 'block';
+            }
+        }
+
+        // Handle print receipt button
+        document.getElementById('printReceipt').addEventListener('click', function() {
+            const receiptWindow = window.open('', '_blank');
+            const payment = currentPayment;
+            const method = document.getElementById('paymentMethod').value;
+            const amount = document.getElementById('paymentAmount').value;
+            
+            receiptWindow.document.write(`
+                <html>
+                <head>
+                    <title>Payment Receipt</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 20px; }
+                        .receipt { max-width: 400px; margin: 0 auto; }
+                        .header { text-align: center; margin-bottom: 20px; }
+                        .detail { margin: 10px 0; display: flex; justify-content: space-between; }
+                        .footer { margin-top: 30px; text-align: center; font-size: 0.9em; }
+                    </style>
+                </head>
+                <body>
+                    <div class="receipt">
+                        <div class="header">
+                            <h2>Payment Receipt</h2>
+                            <p>Date: ${new Date().toLocaleDateString()}</p>
+                        </div>
+                        <div class="detail">
+                            <span>Description:</span>
+                            <span>${document.getElementById('modalDescription').textContent}</span>
+                        </div>
+                        <div class="detail">
+                            <span>Amount:</span>
+                            <span>৳${parseInt(amount).toLocaleString()}</span>
+                        </div>
+                        <div class="detail">
+                            <span>Payment Method:</span>
+                            <span>${method}</span>
+                        </div>
+                        <div class="footer">
+                            <p>Thank you for your payment!</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `);
+            receiptWindow.document.close();
+            receiptWindow.print();
+        });
+
+        // Validate payment amount input
+        function validateAmount(input) {
+            if (input.value > 9999999) {
+                input.value = 9999999;
+            }
+            if (input.value < 0) {
+                input.value = 0;
+            }
+        }
+
+        // Mobile sidebar toggle functionality
+        const menuToggle = document.querySelector('.menu-toggle');
+        const sidebar = document.querySelector('.dashboard-sidebar');
+        const content = document.querySelector('.dashboard-content');
+
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+            // Add overlay for mobile when sidebar is open
+            if (sidebar.classList.contains('active')) {
+                const overlay = document.createElement('div');
+                overlay.className = 'sidebar-overlay';
+                overlay.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.5);
+                    z-index: 999;
+                `;
+                document.body.appendChild(overlay);
+                
+                overlay.addEventListener('click', () => {
+                    sidebar.classList.remove('active');
+                    overlay.remove();
+                });
+            } else {
+                const overlay = document.querySelector('.sidebar-overlay');
+                if (overlay) overlay.remove();
+            }
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768) {
+                if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+                    sidebar.classList.remove('active');
+                    const overlay = document.querySelector('.sidebar-overlay');
+                    if (overlay) overlay.remove();
+                }
+            }
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                sidebar.classList.remove('active');
+                const overlay = document.querySelector('.sidebar-overlay');
+                if (overlay) overlay.remove();
+            }
+        });
+
+        // Active menu item highlight
+        const currentPath = window.location.pathname;
+        document.querySelectorAll('.menu-item').forEach(item => {
+            if (item.getAttribute('href') === currentPath) {
+                item.classList.add('active');
+            }
+        });
+
+        function openPaymentModal() {
+            const modal = document.getElementById('paymentModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                // Reset form
+                document.getElementById('paymentMethod').value = '';
+                document.getElementById('paymentAmount').value = '0';
+                document.getElementById('mobilePaymentFields').style.display = 'none';
+                document.getElementById('bankPaymentFields').style.display = 'none';
+            }
+        }
+
+        // Add click event listener to the Pay button in the payment actions
+        document.addEventListener('DOMContentLoaded', function() {
+            const payButton = document.querySelector('.payment-actions button');
+            if (payButton) {
+                payButton.addEventListener('click', openPaymentModal);
+            }
+        });
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('paymentModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+
+        // Close modal function
+        function closeModal() {
+            const modal = document.getElementById('paymentModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Close button event listener
+        document.querySelector('.close-modal').addEventListener('click', closeModal);
+        document.getElementById('cancelPayment').addEventListener('click', closeModal);
+
+        // Initialize transactions data
+        document.addEventListener('DOMContentLoaded', function() {
+            window.transactionsData = JSON.parse(document.getElementById('transactions-data').textContent || '[]');
+        });
+
+        function downloadReceipt(element) {
+            try {
+                // Get payment data from data attribute
+                const payment = JSON.parse(element.getAttribute('data-payment'));
+                
+                // Create receipt window
+                const receiptWindow = window.open('', '_blank');
+                
+                // Find matching transaction
+                const transaction = window.transactionsData.find(t => t.payment_id === payment.id) || {
+                    method: 'N/A',
+                    payment_details: {}
+                };
+                
+                // Format date
+                const paymentDate = new Date(payment.date);
+                const formattedDate = paymentDate.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                // Get payment method details with fallback values
+                let paymentMethodDetails = '';
+                if (transaction.method === 'bkash' || transaction.method === 'nagad') {
+                    paymentMethodDetails = `
+                        <div class="detail-row">
+                            <span class="label">Mobile Number:</span>
+                            <span class="value">${transaction.payment_details.mobile_number || 'N/A'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Transaction ID:</span>
+                            <span class="value">${transaction.payment_details.transaction_id || 'N/A'}</span>
+                        </div>
+                    `;
+                } else if (transaction.method === 'bank') {
+                    paymentMethodDetails = `
+                        <div class="detail-row">
+                            <span class="label">Account Name:</span>
+                            <span class="value">${transaction.payment_details.account_name || 'N/A'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="label">Account Number:</span>
+                            <span class="value">${transaction.payment_details.account_number || 'N/A'}</span>
+                        </div>
+                    `;
+                }
+
+                // Generate receipt HTML
+                const receiptHTML = `
+                    <html>
+                    <head>
+                        <title>Payment Receipt - ${payment.receipt_number || 'N/A'}</title>
+                        <style>
+                            body {
+                                font-family: Arial, sans-serif;
+                                margin: 0;
+                                padding: 20px;
+                                background: #f5f5f5;
+                            }
+                            .receipt {
+                                max-width: 800px;
+                                margin: 0 auto;
+                                background: white;
+                                padding: 40px;
+                                border-radius: 10px;
+                                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                            }
+                            .receipt-header {
+                                text-align: center;
+                                margin-bottom: 30px;
+                                padding-bottom: 20px;
+                                border-bottom: 2px solid #eee;
+                            }
+                            .logo {
+                                font-size: 24px;
+                                font-weight: bold;
+                                color: #4070f4;
+                                margin-bottom: 10px;
+                            }
+                            .receipt-title {
+                                font-size: 28px;
+                                color: #333;
+                                margin: 10px 0;
+                            }
+                            .receipt-number {
+                                color: #666;
+                                font-size: 16px;
+                            }
+                            .detail-row {
+                                display: flex;
+                                justify-content: space-between;
+                                margin: 15px 0;
+                                padding: 5px 0;
+                            }
+                            .label {
+                                color: #666;
+                                font-weight: 500;
+                            }
+                            .value {
+                                color: #333;
+                                font-weight: 600;
+                            }
+                            .payment-method {
+                                margin: 20px 0;
+                                padding: 20px;
+                                background: #f8f9fa;
+                                border-radius: 8px;
+                            }
+                            .method-title {
+                                font-size: 18px;
+                                color: #333;
+                                margin-bottom: 15px;
+                                padding-bottom: 10px;
+                                border-bottom: 1px solid #eee;
+                            }
+                            .total-section {
+                                margin-top: 30px;
+                                padding-top: 20px;
+                                border-top: 2px solid #eee;
+                            }
+                            .total-row {
+                                display: flex;
+                                justify-content: space-between;
+                                margin: 10px 0;
+                                font-size: 18px;
+                            }
+                            .total-label {
+                                color: #333;
+                                font-weight: 600;
+                            }
+                            .total-value {
+                                color: #4070f4;
+                                font-weight: bold;
+                            }
+                            .footer {
+                                margin-top: 40px;
+                                text-align: center;
+                                color: #666;
+                                font-size: 14px;
+                            }
+                            .status-badge {
+                                display: inline-block;
+                                padding: 8px 15px;
+                                border-radius: 20px;
+                                font-size: 14px;
+                                font-weight: 500;
+                            }
+                            .status-paid {
+                                background: #d1fae5;
+                                color: #065f46;
+                            }
+                            .status-pending {
+                                background: #ffedd5;
+                                color: #9a3412;
+                            }
+                            .status-failed {
+                                background: #fee2e2;
+                                color: #dc2626;
+                            }
+                            @media print {
+                                body {
+                                    background: white;
+                                }
+                                .receipt {
+                                    box-shadow: none;
+                                    padding: 0;
+                                }
+                                .no-print {
+                                    display: none;
+                                }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="receipt">
+                            <div class="receipt-header">
+                                <div class="logo">Student Management System</div>
+                                <h1 class="receipt-title">Payment Receipt</h1>
+                                <div class="receipt-number">Receipt #: ${payment.receipt_number || 'N/A'}</div>
+                            </div>
+
+                            <div class="detail-row">
+                                <span class="label">Date:</span>
+                                <span class="value">${formattedDate}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Description:</span>
+                                <span class="value">${payment.description || 'N/A'}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Status:</span>
+                                <span class="value">
+                                    <span class="status-badge status-${payment.status.toLowerCase()}">
+                                        ${payment.status}
+                                    </span>
+                                </span>
+                            </div>
+
+                            <div class="payment-method">
+                                <h3 class="method-title">Payment Method Details</h3>
+                                <div class="detail-row">
+                                    <span class="label">Method:</span>
+                                    <span class="value">${transaction.method.toUpperCase()}</span>
+                                </div>
+                                ${paymentMethodDetails}
+                            </div>
+
+                            <div class="total-section">
+                                <div class="total-row">
+                                    <span class="total-label">Amount:</span>
+                                    <span class="total-value">৳${payment.amount.toLocaleString()}</span>
+                                </div>
+                                <div class="total-row">
+                                    <span class="total-label">Discount:</span>
+                                    <span class="total-value">৳${payment.discount.toLocaleString()}</span>
+                                </div>
+                                <div class="total-row">
+                                    <span class="total-label">Paid Amount:</span>
+                                    <span class="total-value">৳${payment.paid.toLocaleString()}</span>
+                                </div>
+                            </div>
+
+                            <div class="footer">
+                                <p>Thank you for your payment!</p>
+                                <p>For any queries, please contact support.</p>
+                            </div>
+
+                            <div class="no-print" style="text-align: center; margin-top: 20px;">
+                                <button onclick="window.print()" style="
+                                    background: #4070f4;
+                                    color: white;
+                                    border: none;
+                                    padding: 10px 20px;
+                                    border-radius: 5px;
+                                    cursor: pointer;
+                                    margin: 10px;
+                                ">Print Receipt</button>
+                                <button onclick="window.close()" style="
+                                    background: #6b7280;
+                                    color: white;
+                                    border: none;
+                                    padding: 10px 20px;
+                                    border-radius: 5px;
+                                    cursor: pointer;
+                                    margin: 10px;
+                                ">Close</button>
+                            </div>
+                        </div>
+                    </body>
+                    </html>
+                `;
+
+                // Write receipt content and trigger print
+                receiptWindow.document.write(receiptHTML);
+                receiptWindow.document.close();
+            } catch (error) {
+                console.error('Error generating receipt:', error);
+                alert('An error occurred while generating the receipt. Please try again.');
+            }
+        }
+
+        function calculateDiscount(totalAmount) {
+            if (totalAmount < 10000) return 0;
+            
+            if (totalAmount >= 50000) return totalAmount * 0.05;
+            if (totalAmount >= 40000) return totalAmount * 0.04;
+            if (totalAmount >= 30000) return totalAmount * 0.03;
+            if (totalAmount >= 20000) return totalAmount * 0.02;
+            if (totalAmount >= 10000) return totalAmount * 0.01;
+            
+            return 0;
+        }
+
+        // Update payment form to show automatic discount
+        document.getElementById('paymentAmount').addEventListener('input', function() {
+            const amount = parseFloat(this.value) || 0;
+            const discount = calculateDiscount(amount);
+            
+            // Update discount display in modal
+            document.getElementById('modalDiscount').textContent = discount > 0 ? '৳' + discount.toFixed(2) : '-';
+            
+            // Update remaining amount calculation
+            const remaining = amount - discount;
+            document.getElementById('modalRemaining').textContent = '৳' + remaining.toFixed(2);
+        });
+
+        // Add discount info to the payment modal
+        const discountInfo = document.createElement('div');
+        discountInfo.className = 'discount-info';
+        discountInfo.innerHTML = `
+            <div style="margin: 15px 0; padding: 10px; background: #f0f4ff; border-radius: 5px; color: #4070f4;">
+                <p style="margin: 0 0 10px 0;"><strong>Automatic Discount Rates:</strong></p>
+                <ul style="margin: 0; padding-left: 20px;">
+                    <li>1% for amounts ৳10,000 - ৳19,999</li>
+                    <li>2% for amounts ৳20,000 - ৳29,999</li>
+                    <li>3% for amounts ৳30,000 - ৳39,999</li>
+                    <li>4% for amounts ৳40,000 - ৳49,999</li>
+                    <li>5% for amounts ৳50,000+</li>
+                </ul>
+            </div>
+        `;
+        document.querySelector('.payment-form').insertBefore(discountInfo, document.querySelector('.payment-instructions'));
+
+        // Update the payment processing UI
+        function showPaymentProcessing(amount, method, discount) {
+            const processingOverlay = document.createElement('div');
+            processingOverlay.className = 'payment-processing-overlay';
+            
+            const finalAmount = amount - discount;
+            
+            processingOverlay.innerHTML = `
+                <div class="processing-card">
+                    <h3 style="margin: 0 0 10px 0; color: #333;">Processing Payment</h3>
+                    
+                    <div class="processing-amount">
+                        ৳${finalAmount.toLocaleString()}
+                    </div>
+                    
+                    <div class="processing-method">
+                        ${getPaymentMethodIcon(method)} ${method.charAt(0).toUpperCase() + method.slice(1)}
+                    </div>
+                    
+                    <div class="processing-steps">
+                        <div class="processing-step active" id="step-initiate">
+                            <div class="step-icon">
+                                <i class="fas fa-sync-alt fa-spin"></i>
+                            </div>
+                            <div class="step-content">
+                                <h4 class="step-title">Initiating Payment</h4>
+                                <p class="step-description">Setting up your payment request...</p>
+                            </div>
+                        </div>
+                        
+                        <div class="processing-step" id="step-verify">
+                            <div class="step-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="step-content">
+                                <h4 class="step-title">Verifying Details</h4>
+                                <p class="step-description">Checking payment information...</p>
+                            </div>
+                        </div>
+                        
+                        <div class="processing-step" id="step-process">
+                            <div class="step-icon">
+                                <i class="fas fa-cog"></i>
+                            </div>
+                            <div class="step-content">
+                                <h4 class="step-title">Processing</h4>
+                                <p class="step-description">Processing your payment...</p>
+                            </div>
+                        </div>
+                        
+                        <div class="processing-step" id="step-complete">
+                            <div class="step-icon">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="step-content">
+                                <h4 class="step-title">Completing</h4>
+                                <p class="step-description">Finalizing your payment...</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="processing-progress">
+                        <div class="progress-bar-fill"></div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(processingOverlay);
+            
+            // Initialize progress
+            const progressBar = processingOverlay.querySelector('.progress-bar-fill');
+            let progress = 0;
+            
+            // Process steps with timing
+            setTimeout(() => {
+                // Step 1: Verify (25%)
+                document.getElementById('step-initiate').classList.remove('active');
+                document.getElementById('step-initiate').classList.add('completed');
+                document.getElementById('step-verify').classList.add('active');
+                progress = 25;
+                progressBar.style.width = `${progress}%`;
+                
+                setTimeout(() => {
+                    // Step 2: Process (50%)
+                    document.getElementById('step-verify').classList.remove('active');
+                    document.getElementById('step-verify').classList.add('completed');
+                    document.getElementById('step-process').classList.add('active');
+                    progress = 50;
+                    progressBar.style.width = `${progress}%`;
+                    
+                    setTimeout(() => {
+                        // Step 3: Complete (75%)
+                        document.getElementById('step-process').classList.remove('active');
+                        document.getElementById('step-process').classList.add('completed');
+                        document.getElementById('step-complete').classList.add('active');
+                        progress = 75;
+                        progressBar.style.width = `${progress}%`;
+                        
+                        setTimeout(() => {
+                            // Step 4: Success (100%)
+                            document.getElementById('step-complete').classList.remove('active');
+                            document.getElementById('step-complete').classList.add('completed');
+                            progress = 100;
+                            progressBar.style.width = `${progress}%`;
+                            
+                            // Show success and remove overlay
+                            setTimeout(() => {
+                                processingOverlay.remove();
+                                showSuccessMessage(finalAmount);
+                            }, 500);
+                        }, 1000);
+                    }, 1000);
+                }, 1000);
+            }, 1000);
+        }
+
+        function showSuccessMessage(amount) {
+            const successOverlay = document.createElement('div');
+            successOverlay.className = 'payment-processing-overlay';
+            
+            successOverlay.innerHTML = `
+                <div class="processing-card">
+                    <div style="color: #059669; font-size: 3rem; margin-bottom: 20px;">
+                        <i class="fas fa-check-circle pulse"></i>
+                    </div>
+                    <h3 style="margin: 0 0 10px 0; color: #059669;">Payment Successful!</h3>
+                    <p style="color: #333; margin: 0 0 20px 0;">Amount paid: ৳${amount.toLocaleString()}</p>
+                    <button onclick="this.closest('.payment-processing-overlay').remove()" 
+                            style="background: #059669; color: white; border: none; padding: 10px 20px; 
+                                   border-radius: 5px; cursor: pointer; font-weight: 500;">
+                        Close
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(successOverlay);
+        }
+    </script>
+</body>
+</html>

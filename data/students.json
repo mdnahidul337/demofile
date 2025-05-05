@@ -6,8 +6,10 @@
         "name": "Nahid",
         "department": "CST",
         "roll": "754311",
-        "collage": "SIMT",
-        "semester": "5"
+        "collage": "SIMTA",
+        "semester": "5",
+        "Fees": "500000",
+        "Paid": "19600.0"
     },
     {
         "id": "ea40c211",

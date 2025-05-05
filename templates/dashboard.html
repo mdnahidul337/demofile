@@ -27,6 +27,7 @@
                 <ul>
                     <li><a href="/dashboard" class="active">Dashboard</a></li>
                     <li><a href="/update_profile">Update Profile</a></li>
+                    <li><a href="/payment_history">Payment History</a></li>
                     <li><a href="/settings">Settings</a></li>
                     <li><a href="/reset_password">Reset Password</a></li>
                     <li><a href="/logout">Logout</a></li>
@@ -89,7 +90,7 @@
                             </div>
                             {% else %}
                             <div class="progress">
-                                <div class="progress-bar" role="progressbar" style="width: {{ progress }}%" aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                <div class="progress-bar" role="progressbar" data-progress="{{ progress }}" aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100"></div>
                             </div>
                             <p><i class="fas fa-chart-line"></i> {{ progress }}% completed</p>
                             <p class="remaining-info">{{ 8 - student.semester|int }} semesters remaining</p>
@@ -108,6 +109,59 @@
                                 {% for i in range(1, 9) %}
                                 <div class="timeline-dot {% if i <= student.semester|int %}active{% endif %}" title="Semester {{ i }}"></div>
                                 {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card" data-aos="fade-left" data-aos-delay="300">
+                        <h3><i class="fas fa-money-bill-wave"></i> Payment Status</h3>
+                        <div class="payment-summary">
+                            <div class="payment-info">
+                                <div class="payment-item">
+                                    <span class="payment-label">Total Fees</span>
+                                    <span class="payment-value">৳{{ payment_summary.total_fees }}</span>
+                                </div>
+                                <div class="payment-item">
+                                    <span class="payment-label">Amount Paid</span>
+                                    <span class="payment-value payment-paid">৳{{ payment_summary.amount_paid }}</span>
+                                </div>
+                                <div class="payment-item">
+                                    <span class="payment-label">Total Discount</span>
+                                    <span class="payment-value payment-discount">৳{{ payment_summary.total_discounts }}</span>
+                                </div>
+                                <div class="payment-item payment-balance">
+                                    <span class="payment-label">
+                                        {% if payment_summary.outstanding_balance == 0 %}
+                                            Balance
+                                        {% elif payment_summary.outstanding_balance < 0 %}
+                                            Due Amount
+                                        {% else %}
+                                            Advance Amount
+                                        {% endif %}
+                                    </span>
+                                    <span class="payment-value {% if payment_summary.outstanding_balance == 0 %}amount-balanced{% elif payment_summary.outstanding_balance < 0 %}amount-due{% else %}amount-advance{% endif %}">
+                                        ৳{{ payment_summary.outstanding_balance|abs }}
+                                    </span>
+                                </div>
+                                <div class="calculation-breakdown">
+                                    <small class="calculation-text">
+                                        Amount Paid (৳{{ payment_summary.amount_paid }}) + Total Discounts (৳{{ payment_summary.total_discounts }}) - Total Fees (৳{{ payment_summary.total_fees }}) = 
+                                        {% if payment_summary.outstanding_balance == 0 %}
+                                            Balanced
+                                        {% elif payment_summary.outstanding_balance > 0 %}
+                                            Advance: ৳{{ payment_summary.outstanding_balance }}
+                                        {% else %}
+                                            Due: ৳{{ payment_summary.outstanding_balance|abs }}
+                                        {% endif %}
+                                    </small>
+                                </div>
+                                {% if payment_summary.pending_payments > 0 %}
+                                <div class="payment-alert">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <span>You have {{ payment_summary.pending_payments }} pending payment(s)</span>
+                                </div>
+                                {% endif %}
+                                <a href="/payment_history" class="btn btn-outline-primary btn-sm mt-3">View Payment History</a>
                             </div>
                         </div>
                     </div>
@@ -172,12 +226,12 @@
                                     <a href="/assignments" class="btn btn-secondary">View</a>
                                 </div>
                                 <div class="service-card">
-                                    <i class="fas fa-question-circle"></i>
+                                    <i class="fas fa-money-bill-wave"></i>
                                     <div class="card-content">
-                                        <h4>Support</h4>
-                                        <p>Get help and support</p>
+                                        <h4>Payment History</h4>
+                                        <p>View your payment records and dues</p>
                                     </div>
-                                    <a href="/support" class="btn btn-secondary">Help</a>
+                                    <a href="/payment_history" class="btn btn-secondary">View</a>
                                 </div>
                             </div>
                         </div>
@@ -310,6 +364,15 @@
             offset: 50
         });
 
+        // Set progress bar width
+        document.addEventListener('DOMContentLoaded', function() {
+            const progressBar = document.querySelector('.progress-bar');
+            if (progressBar) {
+                const progress = progressBar.getAttribute('data-progress');
+                progressBar.style.width = `${progress}%`;
+            }
+        });
+
         // Services Navigation
         document.addEventListener('DOMContentLoaded', function() {
             const navLinks = document.querySelectorAll('.services-nav a');
@@ -390,5 +453,147 @@
         }
     });
     </script>
+
+    <style>
+        /* Progress bar styles */
+        .progress {
+            width: 100%;
+            height: 8px;
+            background-color: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: #4070f4;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .academic-status {
+            text-align: center;
+            padding: 15px;
+        }
+
+        .completion-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background-color: #d1fae5;
+            color: #059669;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .completion-badge i {
+            font-size: 1.2em;
+        }
+
+        .remaining-info {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        /* Add new styles for payment status */
+        .amount-balanced {
+            color: #3b82f6 !important;
+            font-weight: bold;
+        }
+
+        .amount-advance {
+            color: #10b981 !important;
+            font-weight: bold;
+        }
+
+        .amount-due {
+            color: #ef4444 !important;
+            font-weight: bold;
+        }
+
+        .calculation-breakdown {
+            margin-top: 10px;
+            padding: 8px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .calculation-text {
+            color: #666;
+            display: block;
+            line-height: 1.4;
+        }
+
+        /* Rest of your existing styles */
+        .payment-summary {
+            padding: 15px;
+        }
+        
+        .payment-info {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .payment-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+        }
+        
+        .payment-balance {
+            margin-top: 5px;
+            padding-top: 5px;
+            border-top: 1px solid #ddd;
+            font-weight: bold;
+        }
+        
+        .payment-paid {
+            color: #10b981;
+        }
+        
+        .payment-discount {
+            color: #6366f1;
+        }
+        
+        .payment-alert {
+            margin-top: 10px;
+            padding: 8px;
+            background-color: #fff4f4;
+            border-radius: 4px;
+            color: #ef4444;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-outline-primary {
+            background-color: transparent;
+            border: 1px solid #3b82f6;
+            color: #3b82f6;
+            text-align: center;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-primary:hover {
+            background-color: #3b82f6;
+            color: white;
+        }
+        
+        .btn-sm {
+            font-size: 0.85rem;
+        }
+        
+        .mt-3 {
+            margin-top: 15px;
+        }
+    </style>
 </body>
 </html>

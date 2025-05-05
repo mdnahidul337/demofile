@@ -1,0 +1,91 @@
+[
+    {
+        "id": "09c3addc",
+        "student_id": "09c3addc",
+        "date": "Jan 15, 2023",
+        "description": "Admission Fee",
+        "amount": 50700,
+        "discount": 0,
+        "paid": 5000,
+        "status": "Paid",
+        "receipt_number": "RCP10001"
+    },
+    {
+        "id": "09c3addc",
+        "student_id": "09c3addc",
+        "date": "Jan 20, 2023",
+        "description": "Library Fee",
+        "amount": 1200000,
+        "discount": 0,
+        "paid": 1000,
+        "status": "Paid",
+        "receipt_number": "RCP10002"
+    },
+    {
+        "id": "09c3addc",
+        "student_id": "09c3addc",
+        "date": "Feb 5, 2023",
+        "description": "1st Semester Tuition Fee",
+        "amount": 15000,
+        "discount": 0,
+        "paid": 13500,
+        "status": "Paid",
+        "receipt_number": "RCP10003"
+    },
+    {
+        "id": "pmt_004",
+        "student_id": "001",
+        "date": "Mar 10, 2023",
+        "description": "Laboratory Fee",
+        "amount": 2500,
+        "discount": 0,
+        "paid": 2500,
+        "status": "Paid",
+        "receipt_number": "RCP10004"
+    },
+    {
+        "id": "pmt_005",
+        "student_id": "001",
+        "date": "Jun 15, 2023",
+        "description": "2nd Semester Tuition Fee",
+        "amount": 15000,
+        "discount": 1500,
+        "paid": 7500,
+        "status": "Partial",
+        "receipt_number": "RCP10005"
+    },
+    {
+        "id": "pmt_006",
+        "student_id": "001",
+        "date": "Jul 5, 2023",
+        "description": "Examination Fee",
+        "amount": 3000,
+        "discount": 0,
+        "paid": 3000,
+        "status": "Paid",
+        "receipt_number": "RCP10006"
+    },
+    {
+        "id": "pmt_007",
+        "student_id": "001",
+        "date": "Aug 20, 2023",
+        "description": "Sports Fee",
+        "amount": 1800,
+        "discount": 300,
+        "paid": 1500,
+        "status": "Paid",
+        "receipt_number": "RCP10007"
+    },
+    {
+        "id": "aead7ded",
+        "student_id": "09c3addc",
+        "date": "2025-05-05 21:22:02",
+        "description": "Examination Fee",
+        "amount": 50700,
+        "payment_amount": 100,
+        "discount": 0,
+        "paid": 100,
+        "status": "Paid",
+        "receipt_number": "RCP1746458522"
+    }
+]
