@@ -9,4 +9,7 @@ if __name__ == '__main__':
 
 pip install -r requirements.txt    #all library download
 
+render.com
+url :https://demofile.onrender.com
+
 new Update 1.2 major
