@@ -373,6 +373,15 @@ def logout():
     session.clear()
     return redirect(url_for('index'))
 
+@app.route('/go_cs', methods=['POST'])
+def go_cs():
+    return redirect(url_for('cs_page'))
+
+@app.route('/cs')
+def cs_page():
+    student = {'name': 'You Name'}  # Replace with your real data or session
+    return render_template('cs.html', student=student)
+
 if __name__ == '__main__':
     app.run(debug=True)
 

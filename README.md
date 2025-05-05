@@ -8,3 +8,5 @@ if __name__ == '__main__':
 
 
 pip install -r requirements.txt    #all library download
+
+new Update 1.2 major
